@@ -1,31 +1,9 @@
+""" Functions needed fot the search algorithm """
+
 import numpy as np
 from numpy import abs
 from numpy.linalg import norm
 
-
-# Search Volume and grid
-Vx, Vy, Vz = 1, 1, 1
-# Grid
-## Center of search volume
-x0, y0, z0 = 0, 0, 0
-## Start value
-z_start=1
-## Step size for the grid
-dx, dy = 1, 1
-## Number of grid points in all directions
-Nx, Ny = int(Vx/dx), int(Vy/dy)
-## Create the grid (plane: f(x,y,z_start)=c)
-grid = []
-for i in range(Nx):
-    for j in range(Ny):
-        grid.append(np.array([x0+i*dx, y0+j*dy, z_start]))
-# Search
-## Search direction
-d = np.array([0,0,1])
-## Search step
-t = 1
-# Precision
-precision = 1
 
 def search(t, grid, precision, V, D1, D2):
     """
@@ -59,7 +37,7 @@ def search(t, grid, precision, V, D1, D2):
 def ternarySearch(absolutePrecision, lower, upper, D1, D2):
     """
     Finds the maximum in the interval [<lower>, <upper>] with a precision of <absolutePrecision>.
-    Recursive function
+    Recursive function.
     Args:
         absolutePrecision : float
             Precision of the search interval
@@ -88,8 +66,6 @@ def ternarySearch(absolutePrecision, lower, upper, D1, D2):
         ternarySearch(absolutePrecision, lower, upperThird, D1, D2)
 
 
-
-
 def m1(n1, n2):
     """Inconsistensy of the current point p
     Args:
@@ -115,6 +91,7 @@ def normal_at(p, Di):
         n = np.array([x,y,z]) (unit vector)
     """
     return None
+
 
 def evaluatePoint(p, D1, D2):
     """
