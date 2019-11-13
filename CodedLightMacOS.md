@@ -1,9 +1,9 @@
 ## Install coded light with homebrew
 
-##### 1. `cmake`
+### 1. `cmake`
 ```$ brew install cmake```
 
-##### 2. `OpenCV`
+### 2. `OpenCV`
 ```
 $ brew install opencv
 $ brew search opencv
@@ -31,10 +31,20 @@ $ python3.7
 >>> exit()
 ```
 
-##### 3. `Ceres`
+### 3. `Ceres`
 ```$ brew install ceres-solver```
 
-##### 4.MVG
+### 4. xTCLAP
+```
+$ brew install tclap
+$ git clone https://bitbucket.org/nicolasmartin3d/xtclap
+$ cd xtclap
+$ mkdir build && cd build && cmake ..
+$ make -j4 && sudo make install
+```
+Note : tutorial does not work without xtclap
+
+### 5.MVG
 
 Install OpenThreads
 
@@ -53,7 +63,7 @@ $ cmake ..
 $ make -j4
 $ make install
 ```
-##### 4.Coded light
+### 6.Coded light
 
 ```
 $ wget https://bitbucket.org/nicolasmartin3d/codedlight/get/2.0.tar.gz
@@ -65,7 +75,9 @@ $ cmake ..
 $ make -j4
 $ make install
 ```
-##### Link Qt
+Note : git version had an error. bitbucket version is error free. 
+
+### Link Qt
 ```
 $ echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' > ~/.bash_profile
 $ export LDFLAGS="-L/usr/local/opt/qt/lib"
