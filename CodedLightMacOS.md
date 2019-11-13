@@ -27,10 +27,11 @@ Test:
 $ python3.7
 >>> import cv2
 >>> print( cv2.__version__ ) 
-4.1.2
+3.4.5
 >>> exit()
 ```
-
+Note1 : Verify `cv2.__version__` in the python version to which it was linked (line 19)
+Note2 : `cv2.__version__`is the version of opencv installed
 ### 3. `Ceres`
 ```
 $ brew install ceres-solver
