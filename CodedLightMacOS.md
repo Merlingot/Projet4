@@ -1,7 +1,9 @@
 ## Install coded light with homebrew
 
 ### 1. `cmake`
-```$ brew install cmake```
+```
+$ brew install cmake
+```
 
 ### 2. `OpenCV`
 ```
@@ -13,7 +15,6 @@ $ brew unlink opencv
 $ brew --force link opencv@3
 ```
 Then:
-
 ```
 $ echo /usr/local/opt/opencv/lib/python3.7/site-packages >> /usr/local/lib/python3.7/site-packages/opencv.pth
 $ echo 'export PATH="/usr/local/opt/opencv@3/bin:$PATH"' >> ~/.bash_profile 
@@ -22,7 +23,6 @@ $ export CPPFLAGS="-I/usr/local/opt/opencv@3/include"
 ```
 
 Test:
-
 ```
 $ python3.7
 >>> import cv2
@@ -32,7 +32,9 @@ $ python3.7
 ```
 
 ### 3. `Ceres`
-```$ brew install ceres-solver```
+```
+$ brew install ceres-solver
+```
 
 ### 4. xTCLAP
 ```
@@ -47,12 +49,10 @@ Note : tutorial does not work without xtclap
 ### 5.MVG
 
 Install OpenThreads
-
 ```
 $ brew install openscenegraph
 ```
 Install MVG
-
 ```
 $ brew install wget 
 $ wget https://bitbucket.org/nicolasmartin3d/mvg/get/1.0.tar.gz
@@ -64,7 +64,6 @@ $ make -j4
 $ make install
 ```
 ### 6.Coded light
-
 ```
 $ wget https://bitbucket.org/nicolasmartin3d/codedlight/get/2.0.tar.gz
 $ tar zxf 2.0.tar.gz
