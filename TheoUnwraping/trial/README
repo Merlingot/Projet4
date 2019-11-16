@@ -1,0 +1,20 @@
+
+
+Générer les patterns: 
+
+cl3ds_generate -g phaseshift.xml -o patt/patt%04d.png -f -1
+
+Dans le fichier phaseshift.xml:
+- modifier les périodes (en pixels) à générer: <periods> 16. 48. 144. 432. 1296. </periods>
+- modifier le nombre de shifts pour chaque période: <numShifts> 21 3 3 3 3 </numShifts>
+
+---------------------------------------------------------------------------
+Matcher les patterns avec les images acquises:
+
+cl3ds_match -m phaseshift_matcher.xml -k "cam match" -o cam_match.png
+
+Dans le fichier phaseshift_matcher.xml: 
+- s'assurer que le path du générateur de patron est correct: <configFilePath_>phaseshift.xml</configFilePath_>
+- modifier le path d'images d'entrée:  <pathFormat>scan/img%04d.png</pathFormat>
+- s'assurer que le nombre d'images à lire est le bon: <length>66</length>
+
