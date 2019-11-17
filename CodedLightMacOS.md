@@ -38,16 +38,16 @@ $ python3.7
 ```
 Note1 : Verify `cv2.__version__` in the python version to which it was linked (line 19)
 
-Note2 : `cv2.__version__`is the version of opencv that will be used. Should be opencv3. Does not work with opencv4. 
+Note2 : `cv2.__version__`is the version that will be used. Should be opencv3. Does not work with opencv4. 
 
 ### 3. `Ceres`
 ```
 $ brew install ceres-solver
 ```
 
-### 4. xTCLAP
+### 4. `xTCLAP`
 
-You need to instal TCLAP first:
+You need to install TCLAP first:
 ```
 $ brew install tclap
 ```
@@ -60,9 +60,9 @@ $ make -j4 && make install
 ```
 Note : tutorial does not work for me without xtclap
 
-### 5.MVG
+### 5. `MVG`
 
-Install OpenThreads
+Install the OpenThreads library:
 ```
 $ brew install openscenegraph
 ```
@@ -77,7 +77,7 @@ $ cd nicolasmartin3d-mvg-6321c820e7d8
 $ mkdir build && cd build && cmake ..
 $ make -j4 && make install
 ```
-### 6.Coded light
+### 6. `Coded light`
 ```
 $ wget https://bitbucket.org/nicolasmartin3d/codedlight/get/2.0.tar.gz
 $ tar zxf 2.0.tar.gz
@@ -87,7 +87,10 @@ $ make -j4 && make install
 ```
 Note : git version had an error. bitbucket version is error free. 
 
-### Link Qt 
+
+## Additional things:
+
+### a. Link `Qt` 
 ```
 $ echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.bash_profile
 $ export LDFLAGS="-L/usr/local/opt/qt/lib"
