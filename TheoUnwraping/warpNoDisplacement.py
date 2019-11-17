@@ -7,7 +7,7 @@ distCoeff = np.zeros((8,1),np.float64)
 # TODO: add your coefficients here!
 k1 = 0.0;
 k2 = 0.0;
-p1 = 0.0;
+p1 = 1e-4;
 p2 = 0.0;
 k3 = 0.0;
 k4 = 0.0;

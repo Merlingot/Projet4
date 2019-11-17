@@ -24,10 +24,11 @@ distCoeff[6,0] = k5;
 distCoeff[7,0] = k6;
 
 #-Offset
-
 x_off = 50
-y_off = x_off
-x_in = 50
+y_off = 400
+
+#-Inset
+x_in = 1 # ALWAYS >=1
 y_in = x_in
 
 
@@ -53,7 +54,7 @@ for i in range(24):
     dst = cv2.resize(dst,(200,150))
 
     grey = imread("refImages/grey.png")
-    grey[y_off:y_off+dst.shape[0], x_off:x_off+dst.shape[1]] = dst
+    grey[y_off+y_in:y_off+dst.shape[0]-y_in, x_off+x_in:x_off+dst.shape[1]-x_in] = dst[y_in:-y_in, x_in:-x_in]
 
     grey = cv2.resize(grey, (780,580))
     
