@@ -68,9 +68,12 @@ $ brew install openscenegraph
 ```
 Note: the OpenSceneGraph library contains the OpenThreads library. This is the only I have found possible to install the OpenThread lib.
 
-Install MVG
+Install `wget` if you dont have it:
 ```
 $ brew install wget 
+```
+Install MVG
+```
 $ wget https://bitbucket.org/nicolasmartin3d/mvg/get/1.0.tar.gz
 $ tar zxf 1.0.tar.gz
 $ cd nicolasmartin3d-mvg-6321c820e7d8
