@@ -7,7 +7,7 @@ distCoeff = np.zeros((8,1),np.float64)
 # TODO: add your coefficients here!
 k1 = 0.0;
 k2 = 0.0;
-p1 = 1e-4;
+p1 = 0.0;
 p2 = 0.0;
 k3 = 0.0;
 k4 = 0.0;
@@ -31,9 +31,9 @@ x_in = 50
 y_in = x_in
 
 
-for i in range(int(input("Number for paterns? "))):
+for i in range(24):
     
-    src    = imread("fringes/fringes_{:03d}.png".format(i))
+    src    = imread("../fringes/fringes_{:03d}.png".format(i))
     print("fringes_{:03d}.png".format(i) + "-->" + "dstFringes_{:03}.png".format(i)) 
     #-Define image caracteristics
     width  = src.shape[1]
@@ -50,7 +50,7 @@ for i in range(int(input("Number for paterns? "))):
    
     #cv2.imshow('dst', dst)
 
-    imsave("thScan/dstFringes_{:03d}.png".format(i), dst)
+    imsave("../thScan/dstFringes_{:03d}.png".format(i), dst)
 
     #cv2.waitKey(0)
 
