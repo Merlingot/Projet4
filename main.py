@@ -32,4 +32,6 @@ sgmf = "cam_match.png"
 
 cam = Camera(ecran, K, R, T, W, w, sgmf)
 
+print( cam.pixCamToEcran( np.array([100,100]) ) )
+
 

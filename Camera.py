@@ -52,7 +52,17 @@ class Camera:
 
         plt.show()
 
+    def pixCamToEcran(self, u):
+
+        uE = [int(np.floor(u[0])), int(np.floor(u[1]))]
+        uR = np.mod(u,1)
+
+        vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
+        vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+
+        return np.array([vx, vy])
 
 
 
 
+    
