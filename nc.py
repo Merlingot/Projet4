@@ -1,11 +1,13 @@
 """ Functions needed fot the search algorithm """
+from Camera import Camera
+from Ecran import Ecran
 
 import numpy as np
 from numpy import abs
 from numpy.linalg import norm
 
 
-def search(t, grid, precision, V, D1, D2):
+def search(t, grid, precision, V, cam1, cam2, ecran):
     """
     Find the position (vector p_min) and value (min) of the minimum on each point of the grid
     Args:
@@ -13,8 +15,8 @@ def search(t, grid, precision, V, D1, D2):
         grid (list[np.array([x,y,z])]) :
         precision (float) :
         V (np.array([x,y,z])) : Volume
-        D1, D2 : Measurement class on aurait infos sur sgmf cam
-            Measurements nb. 1 and 2
+        cam1, cam2 : caméra
+        ecran : ecran
     Return:
         rv: list(list(p_min, min)) -> fire un objet
         TO DO ajouter les normales, dezip
@@ -24,18 +26,18 @@ def search(t, grid, precision, V, D1, D2):
         p_min = p
         min = 10e100 #(infini)
         while p[2]<=V[2]:
-            val = evaluatePoint(p, D1, D2)
-            if val < min :
+            val = evaluatePoint(p, cam1, cam2)
+            if val < min:
                 min = val
                 p_min = p
             p += t*d #search along d
         p_minus1 = p_min - t*d
         p_plus1 = p_min + t*d
-        p_min, min  = ternarySearch(precision, p_minus1, p_plus1, D1, D2)
+        p_min, min  = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2)
         rv.append([p_min, min])
     return rv
 
-def ternarySearch(absolutePrecision, lower, upper, D1, D2):
+def ternarySearch(absolutePrecision, lower, upper, cam1, cam2):
     """
     Find the maximum in the interval [<lower>, <upper>] with a precision of <absolutePrecision>.
     Recursive function.
@@ -46,7 +48,7 @@ def ternarySearch(absolutePrecision, lower, upper, D1, D2):
             Current lower bound of search domain
         upper : np.array([x,y,z])
             Current upper bound of search domain
-        D1, D2 : Measurement class
+        cam1, cam2 : Caméra
             Measurements nb. 1 and 2
     Return:
         p_min : np.array([x,y,z])
@@ -98,7 +100,7 @@ def evaluatePoint(p, D1, D2):
 
 
 
-def normal_at(p, cam, ecran):
+def normal_at(P, cam, ecran):
     """
     Évaluer la normale en un point p
     Args:
@@ -113,19 +115,23 @@ def normal_at(p, cam, ecran):
     """
 
     # Mettre P dans le référentiel de la caméra
-    C = (D.R + D.T)@P #[X,Y,Z]
+    C = (cam.R + cam.T)@P #[X,Y,Z]
     # Écraser Pc dans le référentiel de l'écran
-    c = F/Pe[2]*C #[x,y,1]
+    c = cam.F/P[2]*C[0:1] #[x,y]
     # Mettre en pixel
-    u = D.Kc(c) #Kc est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
+    u = cam.spaceToPixel(c) #[u1,u2]
+    #Kc est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
     # Pixel sur l'écran
-    e = D.sgmf(u)
+    v = cam.sgmf(u) #[e1,e2]
     # Transformer de pixel au référentiel de l'écran
-    E = E.Ke(e) #Ke est une fonction qui passe de pixel de l'écran à x,y sur l'écran #E=(X,Y,0)
+    e = ecran.pixelToSpace(e) #e=(x,Yy)
+    #Ke est une fonction qui passe de pixel de l'écran à x,y sur l'écran
+    E = np.array([e[0], e[1], 0])
     return normale(P,E,C)
 
 
 def normale(P,E,C):
+    """ Calculer une normale avec 3 points dans le même référentiel """
     PE = E-P; PC = C-P
     pe = PE/np.norm(PE); pc = PC/np.norm(PC)
     N = pe + pc
