@@ -16,12 +16,12 @@ class Ecran:
     def pixelToSpace(vecPix):
         """
         Args:
-        vecPix: np.array([u,v])
+        vecPix: np.array([ux,uy])
             Vecteur de position en pixels
         Returns:
             np.array([x,y])
             Vecteur de position en m
         """
-        u,v = vecPix[0], vecPix[1]
-        x,y = (u - self.cx)/self.sx, (v-self.cy)/self.sy
+        ux,uy = vecPix[0], vecPix[1]
+        x,y = (ux - self.cx)/self.sx, (uy-self.cy)/self.sy
         return np.array([x,y])
