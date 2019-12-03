@@ -37,7 +37,7 @@ def search(t, grid, precision, V, D1, D2):
 
 def ternarySearch(absolutePrecision, lower, upper, D1, D2):
     """
-    Finds the maximum in the interval [<lower>, <upper>] with a precision of <absolutePrecision>.
+    Find the maximum in the interval [<lower>, <upper>] with a precision of <absolutePrecision>.
     Recursive function.
     Args:
         absolutePrecision : float
@@ -68,30 +68,19 @@ def ternarySearch(absolutePrecision, lower, upper, D1, D2):
 
 
 def m1(n1, n2):
-    """Inconsistensy of the current point p
+    """Inconsistensy of the current point p.
+    Definition: m=1-absolute_value( n1<dot_product>n2 )
     Args:
         n1, n2 : np.array([x,y,z])
     """
     return 1 - np.abs(n1@n2)
 
 def m2(n1, n2):
-    """Inconsistensy of the current point p
+    """Inconsistensy of the current point p.
+    Definition : m=n1<cross_product>n2
     Args:
         n1, n2 : np.array([x,y,z])"""
     return norm(np.cross(n1, n2))
-
-
-def normal_at(p, Di):
-    """
-    TO DO
-    Evaluates the normal at a point p from a measurement Di
-    Args:
-        p = np.array([x,y,z])
-        Di: measurement of camera i
-    returns
-        n = np.array([x,y,z]) (unit vector)
-    """
-    return None
 
 
 def evaluatePoint(p, D1, D2):
@@ -106,6 +95,20 @@ def evaluatePoint(p, D1, D2):
     n1 = normal_at(p, D1)
     n2 = normal_at(p,D2)
     return m1(n1, n2)
+
+
+
+def normal_at(p, Di):
+    """
+    TO DO
+    Evaluates the normal at a point p from a measurement Di
+    Args:
+        p = np.array([x,y,z])
+        Di: measurement of camera i
+    returns
+        n = np.array([x,y,z]) (unit vector)
+    """
+    return None
 
 
 
