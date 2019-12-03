@@ -5,7 +5,13 @@ from skimage.io import imread, imsave
 import seaborn as sns
 
 from Camera import Camera
+from Ecran import Ecran
 
+# Setup
+w = np.array( [1600, 900] )
+W = w * 0.277e-3
+c = np.array( [800, 450] )
+ecran = Ecran( W, w, c)
 
 # Parametre de calibration provenant de l'annee derniere
 
@@ -24,6 +30,6 @@ W = w * 1.69e-6
 
 sgmf = "cam_match.png"
 
-cam = Camera(K, R, T, W, w, sgmf)
+cam = Camera(ecran, K, R, T, W, w, sgmf)
 
 

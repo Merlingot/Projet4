@@ -15,8 +15,11 @@ class Camera:
     #   -w : Vecteur de la taille du CCD de la camera en [pix]                      | np.array()
     #   -SGMF : String du nom du PNG de cartographie de pixel entre camera et ecran | str()
     ############
-    def __init__(self, K, R, T, W, w, sgmf):
+    def __init__(self, ecran, K, R, T, W, w, sgmf):
         
+        # Setup
+        self.ecran = ecran
+
         # Intrinsèque
         self.K = K                              # Tout information
         self.f = ( K[0,0] + K[1,1] ) / 2.       # Focale camera (moyenne de fx et fy)
@@ -37,15 +40,15 @@ class Camera:
 
         #-Green channel
         self.sgmf = np.zeros( (sgmfXY.shape[0], sgmfXY.shape[1], sgmfXY.shape[2]-1) )
-        self.sgmf[:,:,0] = sgmfXY[:,:,1] * self.w[0] / 255.
-        self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.w[1] / 255.
+        self.sgmf[:,:,0] = sgmfXY[:,:,1] * self.ecran.w[0] / 255.
+        self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
 
         #-Pixel to Pixel cartography
         plt.figure()
-        axy = sns.heatmap(self.sgmf[:,:,0], cmap="coolwarm")
+        axy = sns.heatmap(self.sgmf[:,:,0], cmap="cool")
 
         plt.figure()
-        axx = sns.heatmap(self.sgmf[:,:,1], cmap="coolwarm")
+        axx = sns.heatmap(self.sgmf[:,:,1], cmap="cool")
 
         plt.show()
 
