@@ -13,7 +13,7 @@ def search(t, grid, precision, V, D1, D2):
         grid (list[np.array([x,y,z])]) :
         precision (float) :
         V (np.array([x,y,z])) : Volume
-        D1, D2 : Measurement class on aurait infos sur sgmf cam 
+        D1, D2 : Measurement class on aurait infos sur sgmf cam
             Measurements nb. 1 and 2
     Return:
         rv: list(list(p_min, min)) -> fire un objet
@@ -98,19 +98,39 @@ def evaluatePoint(p, D1, D2):
 
 
 
-def normal_at(p, Di):
+def normal_at(p, cam, ecran):
     """
-    TO DO
-    Evaluates the normal at a point p from a measurement Di
+    Évaluer la normale en un point p
     Args:
-        p = np.array([x,y,z])
-        Di: measurement of camera i
+        P : np.array([x,y,z])
+            Point dans le référentiel de l'écran
+        cam: Structure Camera
+            Caméra qui regarde le point
+        ecran : Structure écran
+            Écran qui shoote des pattern
     returns
         n = np.array([x,y,z]) (unit vector)
     """
-    return None
+
+    # Mettre P dans le référentiel de la caméra
+    C = (D.R + D.T)@P #[X,Y,Z]
+    # Écraser Pc dans le référentiel de l'écran
+    c = F/Pe[2]*C #[x,y,1]
+    # Mettre en pixel
+    u = D.Kc(c) #Kc est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
+    # Pixel sur l'écran
+    e = D.sgmf(u)
+    # Transformer de pixel au référentiel de l'écran
+    E = E.Ke(e) #Ke est une fonction qui passe de pixel de l'écran à x,y sur l'écran #E=(X,Y,0)
+    return normale(P,E,C)
 
 
+def normale(P,E,C):
+    PE = E-P; PC = C-P
+    pe = PE/np.norm(PE); pc = PC/np.norm(PC)
+    N = pe + pc
+    n = N/np.norm(N)
+    return n
 
 
 
