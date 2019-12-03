@@ -23,14 +23,6 @@ distCoeff[5,0] = k4;
 distCoeff[6,0] = k5;
 distCoeff[7,0] = k6;
 
-#-Offset
-
-x_off = 50
-y_off = x_off
-x_in = 50
-y_in = x_in
-
-
 for i in range(24):
     
     src    = imread("../fringes/fringes_{:03d}.png".format(i))

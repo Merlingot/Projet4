@@ -13,10 +13,11 @@ def search(t, grid, precision, V, D1, D2):
         grid (list[np.array([x,y,z])]) :
         precision (float) :
         V (np.array([x,y,z])) : Volume
-        D1, D2 : Measurement class
+        D1, D2 : Measurement class on aurait infos sur sgmf cam 
             Measurements nb. 1 and 2
     Return:
-        rv: list(list(p_min, min))
+        rv: list(list(p_min, min)) -> fire un objet
+        TO DO ajouter les normales, dezip
     """
     rv=[]
     for p in grid:
@@ -27,7 +28,7 @@ def search(t, grid, precision, V, D1, D2):
             if val < min :
                 min = val
                 p_min = p
-            p += t*p #search along d
+            p += t*d #search along d
         p_minus1 = p_min - t*d
         p_plus1 = p_min + t*d
         p_min, min  = ternarySearch(precision, p_minus1, p_plus1, D1, D2)
