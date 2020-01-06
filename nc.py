@@ -1,11 +1,11 @@
 """ Functions needed fot the search algorithm """
 from Camera import Camera
 from Ecran import Ecran
+from Surface import Surface, Point
 
 import numpy as np
 from numpy import abs
 from numpy.linalg import norm
-
 
 def search(t, grid, precision, V, cam1, cam2, ecran):
     """
@@ -18,24 +18,23 @@ def search(t, grid, precision, V, cam1, cam2, ecran):
         cam1, cam2 : caméra
         ecran : ecran
     Return:
-        rv: list(list(p_min, min)) -> fire un objet
-        TO DO ajouter les normales, dezip
+        Objet surface
     """
-    rv=[]
+    surface=Surface()
     for p in grid:
         p_min = p
         min = 10e100 #(infini)
         while p[2]<=V[2]:
-            val = evaluatePoint(p, cam1, cam2)
+            val = evaluatePoint(p, cam1, cam2, ecran)
             if val < min:
                 min = val
                 p_min = p
             p += t*d #search along d
         p_minus1 = p_min - t*d
         p_plus1 = p_min + t*d
-        p_min, min  = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2)
-        rv.append([p_min, min])
-    return rv
+        p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2)
+        surface.ajouter_point( Point(p_min, min, n1, n2) )
+    return surface
 
 def ternarySearch(absolutePrecision, lower, upper, cam1, cam2):
     """
@@ -58,15 +57,16 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2):
     # Everything works with vectors
     if abs(norm(upper - lower)) < absolutePrecision:
         p_min = (lower + upper)/2
-        min = evaluatePoint(p_min, D1, D2)
-        return p_min, min
+        min, n1, n2 = evaluatePoint(p_min, cam1, cam2)
+        return p_min, min, n1, n2
     lowerThird = (2*lower + upper)/3
     upperThird = (lower + 2*upper)/3
 
-    if evaluatePoint(lowerThird, D1, D2) < evaluatePoint(upperThird,  D1, D2):
-        ternarySearch(absolutePrecision, lowerThird, upper, D1, D2)
+    if evaluatePoint(lowerThird, cam1, cam2) < evaluatePoint(upperThird,  cam1,
+                    cam2):
+        ternarySearch(absolutePrecision, lowerThird, upper, cam1, cam2)
     else:
-        ternarySearch(absolutePrecision, lower, upperThird, D1, D2)
+        ternarySearch(absolutePrecision, lower, upperThird, cam1, cam2)
 
 
 def m1(n1, n2):
@@ -85,18 +85,18 @@ def m2(n1, n2):
     return norm(np.cross(n1, n2))
 
 
-def evaluatePoint(p, D1, D2):
+def evaluatePoint(P, cam1, cam2, ecran):
     """
-    Evaluate the inconsistensy m of two measurements D1 and D2 at a point p
+    Evaluate the inconsistensy m of two measurements from cam1 and cam2 at a point p
     Args:
-        p = np.array([x,y,z])
-        D1, D2 : measurements nb. 1 and 2
+        P = np.array([x,y,z])
+        cam1, cam2 : measurements nb. 1 and 2
     Returns:
-        Inconsistensy
+        Inconsistensy, two normals
     """
-    n1 = normal_at(p, D1)
-    n2 = normal_at(p,D2)
-    return m1(n1, n2)
+    n1 = normal_at(P, cam1, ecran)
+    n2 = normal_at(P,cam2, ecran)
+    return m1(n1, n2), n1, n2
 
 
 
@@ -120,12 +120,12 @@ def normal_at(P, cam, ecran):
     c = cam.F/P[2]*C[0:1] #[x,y]
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2]
-    #Kc est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
+    # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
     # Pixel sur l'écran
-    v = cam.sgmf(u) #[e1,e2]
+    v = cam.sgmf(u) #[v1,v2]
     # Transformer de pixel au référentiel de l'écran
-    e = ecran.pixelToSpace(e) #e=(x,Yy)
-    #Ke est une fonction qui passe de pixel de l'écran à x,y sur l'écran
+    e = ecran.pixelToSpace(v) #e=(x,y)
+    # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
     E = np.array([e[0], e[1], 0])
     return normale(P,E,C)
 
