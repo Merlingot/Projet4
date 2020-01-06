@@ -57,6 +57,9 @@ sgmf2 = "cam_match_AV.png"
 
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
-volume=np.array([0,0,0])
-
-search()
+x=np.linspace(50,100, num=5)*1e-2
+z=np.linspace(50,-50, num=5)*1e-2
+grid=np.meshgrid(x,x,z)
+h=1e-3
+precision=1
+search(h, grid, precision, cam1, cam2, ecran)

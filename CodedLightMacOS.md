@@ -20,10 +20,11 @@ $ brew --force link opencv@3
 Then tell Python where OpenCV is:
 ```
 $ echo /usr/local/opt/opencv/lib/python3.7/site-packages >> /usr/local/lib/python3.7/site-packages/opencv.pth
+<!-- /Users/mariannelado-roy/miniconda3/lib/python3.6/site-packages -->
 ```
 Then:
 ```
-$ echo 'export PATH="/usr/local/opt/opencv@3/bin:$PATH"' >> ~/.bash_profile 
+$ echo 'export PATH="/usr/local/opt/opencv@3/bin:$PATH"' >> ~/.bash_profile
 $ export LDFLAGS="-L/usr/local/opt/opencv@3/lib"
 $ export CPPFLAGS="-I/usr/local/opt/opencv@3/include"
 ```
@@ -32,13 +33,13 @@ Test:
 ```
 $ python3.7
 >>> import cv2
->>> print( cv2.__version__ ) 
+>>> print( cv2.__version__ )
 3.4.5
 >>> exit()
 ```
 Note1 : Verify `cv2.__version__` in the python version to which it was linked (line 19)
 
-Note2 : `cv2.__version__`is the version that will be used. Should be opencv3. Does not work with opencv4. 
+Note2 : `cv2.__version__`is the version that will be used. Should be opencv3. Does not work with opencv4.
 
 ### 3. `Ceres`
 ```
@@ -70,7 +71,7 @@ Note: the OpenSceneGraph library contains the OpenThreads library. This is the o
 
 Install `wget` if you dont have it:
 ```
-$ brew install wget 
+$ brew install wget
 ```
 Install MVG
 ```
@@ -88,23 +89,15 @@ $ cd nicolasmartin3d-codedlight-bdd3423492dd
 $ mkdir build && cd build && cmake ..
 $ make -j4 && make install
 ```
-Note : git version had an error. bitbucket version is error free. 
+Note : git version had an error. bitbucket version is error free.
 
 
 ## Additional things:
 
-### a. Link `Qt` 
+### a. Link `Qt`
 ```
 $ echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.bash_profile
 $ export LDFLAGS="-L/usr/local/opt/qt/lib"
 $ export CPPFLAGS="-I/usr/local/opt/qt/include"
 $ export PKG_CONFIG_PATH="/usr/local/opt/qt/lib/pkgconfig"
 ```
-
-
-
-
-
-
-
-
