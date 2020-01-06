@@ -6,6 +6,7 @@ import seaborn as sns
 
 from Camera import Camera
 from Ecran import Ecran
+from nc import *
 
 # Setup
 w = np.array( [1600, 900] )
@@ -56,7 +57,6 @@ sgmf2 = "cam_match.png"
 
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
+volume=np.array([0,0,0])
 
-#print( cam.pixCamToEcran( np.array([100,100]) ) )
-
-
+search()

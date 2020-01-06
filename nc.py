@@ -7,31 +7,31 @@ import numpy as np
 from numpy import abs
 from numpy.linalg import norm
 
-def search(t, grid, precision, V, cam1, cam2, ecran):
+def search(h, grid, precision, cam1, cam2, ecran):
     """
     Find the position (vector p_min) and value (min) of the minimum on each point of the grid
     Args:
-        t (float) : search step
+        h (float) : search step
         grid (list[np.array([x,y,z])]) :
         precision (float) :
-        V (np.array([x,y,z])) : Volume
         cam1, cam2 : caméra
         ecran : ecran
     Return:
         Objet surface
     """
+    d=np.array([0,0,-1])
     surface=Surface()
     for p in grid:
         p_min = p
         min = 10e100 #(infini)
-        while p[2]<=V[2]:
+        while p[2]>0: #z>0
             val = evaluatePoint(p, cam1, cam2, ecran)
             if val < min:
                 min = val
                 p_min = p
-            p += t*d #search along d
-        p_minus1 = p_min - t*d
-        p_plus1 = p_min + t*d
+            p += h*d #search along d
+        p_minus1 = p_min - h*d
+        p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2)
         surface.ajouter_point( Point(p_min, min, n1, n2) )
     return surface
@@ -119,13 +119,11 @@ def normal_at(P, cam, ecran):
     # Écraser Pc dans le référentiel de l'écran
     c = cam.F/P[2]*C[0:1] #[x,y]
     # Mettre en pixel
-    u = cam.spaceToPixel(c) #[u1,u2]
-    # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
-    # Pixel sur l'écran
+    u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
+    # Transformer un pixel sur la caméra à un pixel sur l'écran
     v = cam.sgmf(u) #[v1,v2]
     # Transformer de pixel au référentiel de l'écran
-    e = ecran.pixelToSpace(v) #e=(x,y)
-    # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
+    e = ecran.pixelToSpace(v) #e=(x,y) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
     E = np.array([e[0], e[1], 0])
     return normale(P,E,C)
 
