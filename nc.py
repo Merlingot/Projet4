@@ -19,14 +19,14 @@ def search(h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    d=np.array([0,0,-1])
+    d=np.array([0,0,1])
     surface=Surface()
     for p in grid:
         p_min = p
 
         print(p[2])
         min = 10e100 #(infini)
-        while p[2]>0: #z>0
+        while p[2]<0:
             val = evaluatePoint(p, cam1, cam2, ecran)
             if val < min:
                 min = val
