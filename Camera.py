@@ -57,7 +57,7 @@ class Camera:
 
         
 
-    def spaceToPixel(vecSpace):
+    def spaceToPixel(self, vecSpace):
         """
         Args:
         vecSpace: np.array([x,vy])
@@ -66,16 +66,22 @@ class Camera:
             np.array([u,v])
             Vecteur de position en pixel
         """
-        x,y = vecSpace[0], vecSpace[1]
-        vx,vy = (self.sx*x + self.cx), (self.sy*y-self.cy)
+        x, y = vecSpace[0], vecSpace[1]
+        vx, vy = (self.sx*x + self.c[0]), (self.sy*y-self.c[1])
+
         return np.array([vx,vy])
 
     def pixCamToEcran(self, u):
 
         uE = [int(np.floor(u[0])), int(np.floor(u[1]))]
         uR = np.mod(u,1)
+        
+        if uE[0] > 1 and uE[1] > 1 and uE[0] < self.sgmf.shape[0]-1 and uE[1] < self.sgmf.shape[1]-1:
 
-        vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
-        vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+            vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
+            vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
 
-        return np.array([vx, vy])
+            return np.array([vx, vy])
+        
+        else:
+            return np.array([0,0])
