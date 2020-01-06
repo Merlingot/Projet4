@@ -23,6 +23,8 @@ def search(h, grid, precision, cam1, cam2, ecran):
     surface=Surface()
     for p in grid:
         p_min = p
+
+        print(p[2])
         min = 10e100 #(infini)
         while p[2]>0: #z>0
             val = evaluatePoint(p, cam1, cam2, ecran)
