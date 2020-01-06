@@ -33,7 +33,7 @@ T1 = np.array([56.368, -156.815, 142.289])
 w1 = np.array( [3376, 2704] )
 W1 = w * 1.69e-6
 
-sgmf1 = "cam_match.png"
+sgmf1 = "cam_match_PTG.png"
 
 cam1 = Camera(ecran, K1, R1, T1, W1, w1, sgmf1)
 
@@ -53,7 +53,7 @@ T2 = np.array([13.535, -156.640, 124.790])
 w2 = np.array( [780, 580] )
 W2 = w * 8.3e-6
 
-sgmf2 = "cam_match.png"
+sgmf2 = "cam_match_AV.png"
 
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
