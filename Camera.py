@@ -49,11 +49,11 @@ class Camera:
         self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
 
         #-Pixel to Pixel cartography
-        #plt.figure()
-        #axy = sns.heatmap(self.sgmf[:,:,0], cmap="cool")
-
-        #plt.figure()
-        #axx = sns.heatmap(self.sgmf[:,:,1], cmap="cool")
+        # plt.figure()
+        # axy = sns.heatmap(self.sgmf[:,:,0], cmap="cool")
+        #
+        # plt.figure()
+        # axx = sns.heatmap(self.sgmf[:,:,1], cmap="cool")
 
 
 

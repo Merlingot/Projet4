@@ -20,7 +20,7 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    N=50 #nombre d'itérations (de descentes) pour un seul point
+    N=10 #nombre d'itérations (de descentes) pour un seul point
     surface=Surface(grid)
     for p in grid:
         n=0
@@ -124,7 +124,7 @@ def normal_at(P, cam, ecran):
 
     # Mettre P dans le référentiel de la caméra
     C = (cam.R)@P + cam.T #[X,Y,Z]
-    # Écraser Pc dans le référentiel de l'écran
+    # Écraser Pc dans le référentiel 2D de la caméra
     c = cam.F/P[2]*C[0:2] #[x,y]
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
