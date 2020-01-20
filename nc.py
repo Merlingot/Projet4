@@ -20,7 +20,7 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    N=10 #nombre d'itérations (de descentes) pour un seul point
+    N=100 #nombre d'itérations (de descentes) pour un seul point
     surface=Surface(grid)
     for p in grid:
         n=0
@@ -32,7 +32,7 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
             if val < min:
                 min = val
                 p_min = p
-            p += h*d #search along d
+            p -= h*d #search along d
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)

@@ -71,7 +71,7 @@ for i in range(len(x)):
 
 d=getApproxZDirection(cam1.R, cam2.R) #référentiel de l'écran
 h=1e-3
-precision=1
+precision=1e-2
 
 surf = search(d, h, grid, precision, cam1, cam2, ecran)
 
@@ -80,6 +80,14 @@ from mpl_toolkits.mplot3d import Axes3D
 fig=plt.figure()
 ax=fig.add_subplot(111, projection='3d')
 
+j=0
+z = np.zeros(surf.longueur)
 for i in surf.points:
+    
+    z[j] = i.xyz[2]
     ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
+    j+=1
+
+ax.set_zlim(np.min(z), np.max(z))
+
 plt.show()
