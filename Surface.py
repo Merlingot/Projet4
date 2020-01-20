@@ -7,7 +7,7 @@ class Point:
         self.n2=n2
 
 class Surface:
-    
+
     def __init__(self):
         self.points=[]
     def ajouter_point(self, point):

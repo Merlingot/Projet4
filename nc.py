@@ -115,9 +115,9 @@ def normal_at(P, cam, ecran):
     """
 
     # Mettre P dans le référentiel de la caméra
-    C = (cam.R + cam.T)@P #[X,Y,Z]
+    C = (cam.R)@P + cam.T #[X,Y,Z]
     # Écraser Pc dans le référentiel de l'écran
-    c = cam.F/P[2]*C[0:1] #[x,y]
+    c = cam.F/P[2]*C[0:2] #[x,y]
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
     # Transformer un pixel sur la caméra à un pixel sur l'écran
