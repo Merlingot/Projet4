@@ -7,11 +7,12 @@ import numpy as np
 from numpy import abs
 from numpy.linalg import norm
 
-def search(h, grid, precision, cam1, cam2, ecran):
+def search(d, h, grid, precision, cam1, cam2, ecran):
     """
     Find the position (vector p_min) and value (min) of the minimum on each point of the grid
     Args:
-        h (float) : search step
+        d (np.array([x,y,z])) : direction de recherche (vecteur unitaire)
+        h (float) : incrément de recherche
         grid (list[np.array([x,y,z])]) :
         precision (float) :
         cam1, cam2 : caméra
@@ -19,12 +20,14 @@ def search(h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    d=np.array([0,0,-1])
-    surface=Surface()
+    N=50 #nombre d'itérations (de descentes) pour un seul point
+    surface=Surface(grid)
     for p in grid:
+        n=0
         p_min = p
         min = 10e100 #(infini)
-        while p[2]>-1:
+        while n<N:
+            n+=1
             val, n1, n2 = evaluatePoint(p, cam1, cam2, ecran)
             if val < min:
                 min = val
@@ -33,8 +36,8 @@ def search(h, grid, precision, cam1, cam2, ecran):
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
-        print(ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran))
-        print("..")
+        # print(ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran))
+        # print("..")
         surface.ajouter_point( Point(p_min, min, n1, n2) )
     return surface
 
@@ -56,7 +59,6 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
         min :
     """
     # Note : upper = lower+c*d with d the search direction.
-    # Everything works with vectors
     if abs(norm(upper - lower)) < absolutePrecision:
         p_min = (lower + upper)/2
         min, n1, n2 = evaluatePoint(p_min, cam1, cam2, ecran)
@@ -98,9 +100,9 @@ def evaluatePoint(P, cam1, cam2, ecran):
     n1 = normal_at(P, cam1, ecran)
     n2 = normal_at(P, cam2, ecran)
 
-    print(n1)
-    print(n2)
-    print(".....................................")
+    # print(n1)
+    # print(n2)
+    # print(".....................................")
 
     return m1(n1, n2), n1, n2
 

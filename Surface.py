@@ -8,7 +8,10 @@ class Point:
 
 class Surface:
 
-    def __init__(self):
+    def __init__(self, grid):
         self.points=[]
+        self.longueur=len(grid)
     def ajouter_point(self, point):
         self.points.append(point)
+        if len(self.points) > self.longueur :
+            print('Erreur nombre de points sur la surface')
