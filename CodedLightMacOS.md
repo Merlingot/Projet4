@@ -1,4 +1,4 @@
-## Install coded light with homebrew
+## Installer CodedLight sur un mac
 
 ### 1. `cmake`
 ```
@@ -6,10 +6,25 @@ $ brew install cmake
 ```
 
 ### 2. `OpenCV`
+
+##### Avec conda:
+```
+$ conda install opencv
+```
+Test:
+```
+$ python
+>>> import cv2
+>>> print( cv2.__version__ )
+3.4.2
+>>> exit()
+```
+
+##### Avec Homebrew:
 ```
 $ brew install opencv
 ```
-You have to use OpenCv version 3. Else it does not work. This is how you use the correct version:
+Prendre opencv3:
 ```
 $ brew search opencv
 >>> opencv opencv@2 opencv@3
@@ -17,18 +32,16 @@ $ brew install opencv@3
 $ brew unlink opencv
 $ brew --force link opencv@3
 ```
-Then tell Python where OpenCV is:
+Link:
 ```
 $ echo /usr/local/opt/opencv/lib/python3.7/site-packages >> /usr/local/lib/python3.7/site-packages/opencv.pth
-<!-- /Users/mariannelado-roy/miniconda3/lib/python3.6/site-packages -->
 ```
-Then:
+Flags:
 ```
 $ echo 'export PATH="/usr/local/opt/opencv@3/bin:$PATH"' >> ~/.bash_profile
 $ export LDFLAGS="-L/usr/local/opt/opencv@3/lib"
 $ export CPPFLAGS="-I/usr/local/opt/opencv@3/include"
 ```
-
 Test:
 ```
 $ python3.7
@@ -37,9 +50,6 @@ $ python3.7
 3.4.5
 >>> exit()
 ```
-Note1 : Verify `cv2.__version__` in the python version to which it was linked (line 19)
-
-Note2 : `cv2.__version__`is the version that will be used. Should be opencv3. Does not work with opencv4.
 
 ### 3. `Ceres`
 ```
@@ -48,32 +58,31 @@ $ brew install ceres-solver
 
 ### 4. `xTCLAP`
 
-You need to install TCLAP first:
+Installer TCLAP:
 ```
 $ brew install tclap
 ```
-Then install the extension:
+Installer l'extension:
 ```
 $ git clone https://bitbucket.org/nicolasmartin3d/xtclap
 $ cd xtclap
 $ mkdir build && cd build && cmake ..
 $ make -j4 && make install
 ```
-Note : tutorial does not work for me without xtclap
+Note: Le tutoriel ne marche pas sans xtclap
 
 ### 5. `MVG`
 
-Install the OpenThreads library:
+Intaller la librarie OpenSceneGraph qui contient la librairie OpenThreads.
 ```
 $ brew install openscenegraph
 ```
-Note: the OpenSceneGraph library contains the OpenThreads library. This is the only I have found possible to install the OpenThread lib.
 
-Install `wget` if you dont have it:
+Installer `wget` si tu l'as pas:
 ```
 $ brew install wget
 ```
-Install MVG
+Installer MVG
 ```
 $ wget https://bitbucket.org/nicolasmartin3d/mvg/get/1.0.tar.gz
 $ tar zxf 1.0.tar.gz
@@ -89,10 +98,10 @@ $ cd nicolasmartin3d-codedlight-bdd3423492dd
 $ mkdir build && cd build && cmake ..
 $ make -j4 && make install
 ```
-Note : git version had an error. bitbucket version is error free.
+Note : La version git a un bug dedans.
 
 
-## Additional things:
+## Trucs additionels:
 
 ### a. Link `Qt`
 ```

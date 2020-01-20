@@ -57,15 +57,28 @@ sgmf2 = "cam_match_AV.png"
 
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
-x=np.linspace(20,70, num=5)*1e-2
-y=np.linspace(20,80, num=5)*1e-2
-X, Y=np.meshgrid(x,y)
-X.ravel()
-Y.ravel()
-Z=-50
-grid=[]
-for i in len(X):
-    grid[i] = np.array(X[i], Y[i], Z)
+x=np.linspace(1,100, num=20)*1e-2
+y=np.linspace(1,100, num=20)*1e-2
+
+Z=5e-2
+
+grid = []
+
+for i in range(len(x)):
+    for j in range(len(y)):
+        grid.append( np.array( [x[i], y[j], Z] ) )
+
 h=1e-3
 precision=1
-search(h, grid, precision, cam1, cam2, ecran)
+
+surf = search(h, grid, precision, cam1, cam2, ecran)
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+fig=plt.figure()
+ax=fig.add_subplot(111, projection='3d')
+
+for i in surf.points:
+    ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
+plt.show()
+

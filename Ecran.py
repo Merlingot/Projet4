@@ -1,3 +1,7 @@
+import numpy as np
+
+
+
 class Ecran:
 
     def __init__(self, W, w, c):
@@ -13,7 +17,7 @@ class Ecran:
         self.sx = w[0]/W[0]
         self.sy = w[1]/W[1]
 
-    def pixelToSpace(vecPix):
+    def pixelToSpace(self, vecPix):
         """
         Args:
         vecPix: np.array([ux,uy])
@@ -23,5 +27,5 @@ class Ecran:
             Vecteur de position en m
         """
         ux,uy = vecPix[0], vecPix[1]
-        x,y = (ux - self.cx)/self.sx, (uy-self.cy)/self.sy
+        x,y = (ux - self.c[0])/self.sx, (uy-self.c[1])/self.sy
         return np.array([x,y])
