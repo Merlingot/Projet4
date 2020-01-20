@@ -69,7 +69,7 @@ for i in range(len(x)):
     for j in range(len(y)):
         grid.append( np.array( [x[i], y[j], Z] ) )
 
-d=np.array([0,0,-1]) #référentiel de l'écran
+d=getApproxZDirection(cam1.R, cam2.R) #référentiel de l'écran
 h=1e-3
 precision=1
 

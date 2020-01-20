@@ -122,13 +122,8 @@ def normal_at(P, cam, ecran):
 
     # Mettre P dans le référentiel de la caméra
     C = cam.R@P + cam.T #[X,Y,Z]
-    # Écraser Pc dans le référentiel de l'écran
-    c = cam.F/P[2]*C[0:2] #[x,y]
-
-=======
     # Écraser Pc dans le référentiel 2D de la caméra
     c = cam.F/C[2]*C[0:2] #[x,y]
->>>>>>> test
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
     # Transformer un pixel sur la caméra à un pixel sur l'écran
@@ -147,6 +142,23 @@ def normale(P,E,C):
     n = N/np.linalg.norm(N)
     return n
 
+def getApproxZDirection(R1, R2):
+
+    zEcran = np.array([0, 0, 1])
+
+    zCam1 = np.dot( R1, np.transpose(zEcran) )
+    zCam1 /= np.linalg.norm(zCam1)
+    zCam2 = np.dot( R2, np.transpose(zEcran) )
+    zCam2 /= np.linalg.norm(zCam2)
+
+    zDirection1 = zEcran + zCam1
+    zDirection1 /= np.linalg.norm(zDirection1)
+    zDirection2 = zEcran + zCam2
+    zDirection2 /= np.linalg.norm(zDirection2)
+
+    zDirApprox = zDirection1 + zDirection2
+
+    return zDirApprox / np.linalg.norm(zDirApprox)
 
 
 
