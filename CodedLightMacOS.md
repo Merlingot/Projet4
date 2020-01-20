@@ -20,7 +20,6 @@ $ brew --force link opencv@3
 Then tell Python where OpenCV is:
 ```
 $ echo /usr/local/opt/opencv/lib/python3.7/site-packages >> /usr/local/lib/python3.7/site-packages/opencv.pth
-<!-- /Users/mariannelado-roy/miniconda3/lib/python3.6/site-packages -->
 ```
 Then:
 ```
