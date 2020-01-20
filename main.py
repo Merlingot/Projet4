@@ -87,7 +87,9 @@ for i in surf.points:
     z[j] = i.xyz[2]
     ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
     j+=1
-
+ax.scatter(0,0,0)
+ax.scatter(cam1.T[0], cam1.T[1], cam1.T[2])
+ax.scatter(cam2.T[0], cam1.T[1], cam1.T[2])
 ax.set_zlim(np.min(z), np.max(z))
 
 plt.show()
