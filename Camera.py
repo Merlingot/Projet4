@@ -84,4 +84,5 @@ class Camera:
             return np.array([vx, vy])
 
         else:
+            #Confidence map
             return np.array([0,0])

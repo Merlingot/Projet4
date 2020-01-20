@@ -6,6 +6,8 @@ from Surface import Surface, Point
 import numpy as np
 from numpy import abs
 from numpy.linalg import norm
+import matplotlib.pyplot as plt
+
 
 def search(d, h, grid, precision, cam1, cam2, ecran):
     """
@@ -20,19 +22,31 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    N=100 #nombre d'itérations (de descentes) pour un seul point
+    N=200 #nombre d'itérations (de descentes) pour un seul point
     surface=Surface(grid)
     for p in grid:
         n=0
         p_min = p
         min = 10e100 #(infini)
+        V = np.zeros(N)
+        j = 0
+        a=0
         while n<N:
             n+=1
             val, n1, n2 = evaluatePoint(p, cam1, cam2, ecran)
+            V[j] = val
             if val < min:
                 min = val
-                p_min = p
+                p_min = np.array([p[0],p[1],p[2]])
+                a = n
             p -= h*d #search along d
+            j+=1
+        #print(p_min)
+        #print(a)
+        #plt.figure()
+        #plt.plot(np.arange(0,N), V)
+        #plt.show()
+
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)

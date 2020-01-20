@@ -58,8 +58,8 @@ sgmf2 = "cam_match_AV.png"
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
 ### Reconstruction
-x=np.linspace(1,100, num=20)*1e-2
-y=np.linspace(1,100, num=20)*1e-2
+x=np.linspace(-50,100, num=50)*1e-2
+y=np.linspace(-50, 100, num=50)*1e-2
 
 Z=5e-2
 
@@ -70,6 +70,7 @@ for i in range(len(x)):
         grid.append( np.array( [x[i], y[j], Z] ) )
 
 d=getApproxZDirection(cam1.R, cam2.R) #référentiel de l'écran
+#d = np.array([0,0,1])
 h=1e-3
 precision=1e-2
 
@@ -83,13 +84,12 @@ ax=fig.add_subplot(111, projection='3d')
 j=0
 z = np.zeros(surf.longueur)
 for i in surf.points:
-    
     z[j] = i.xyz[2]
     ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
     j+=1
-ax.scatter(0,0,0)
-ax.scatter(cam1.T[0], cam1.T[1], cam1.T[2])
-ax.scatter(cam2.T[0], cam1.T[1], cam1.T[2])
-ax.set_zlim(np.min(z), np.max(z))
+#ax.scatter(0,0,0)
+#ax.scatter(cam1.T[0], cam1.T[1], cam1.T[2])
+#ax.scatter(cam2.T[0], cam1.T[1], cam1.T[2])
+##ax.set_zlim(np.min(z), np.max(z))
 
 plt.show()
