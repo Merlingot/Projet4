@@ -36,8 +36,6 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
-        # print(ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran))
-        # print("..")
         surface.ajouter_point( Point(p_min, min, n1, n2) )
     return surface
 
@@ -125,7 +123,7 @@ def normal_at(P, cam, ecran):
     # Mettre P dans le référentiel de la caméra
     C = (cam.R)@P + cam.T #[X,Y,Z]
     # Écraser Pc dans le référentiel 2D de la caméra
-    c = cam.F/P[2]*C[0:2] #[x,y]
+    c = cam.F/C[2]*C[0:2] #[x,y]
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
     # Transformer un pixel sur la caméra à un pixel sur l'écran

@@ -28,14 +28,14 @@ class Camera:
         self.W = W                              # Taille du CCD en [mm]
         self.w = w                              # Taille du CCD en [pix]
 
-        self.sx = W[0]/w[0]
+        self.sx = W[0]/w[0]                     #[m/pixels]
         self.sy = W[1]/w[1]
 
         # Extrinsèque (Ecran -> Camera)
         self.R = R                              # Matrice de rotation
         self.T = T                              # Matrice de translation
 
-        self.F = ( K[0,0]/self.sx + K[1,1]/self.sy ) / 2. #Focale utile
+        self.F = ( K[0,0]*self.sx + K[1,1]*self.sy ) / 2. #Focale utile
 
 
         ## SGMF

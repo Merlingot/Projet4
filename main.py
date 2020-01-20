@@ -57,34 +57,29 @@ sgmf2 = "cam_match_AV.png"
 
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
+### Reconstruction
+x=np.linspace(1,100, num=20)*1e-2
+y=np.linspace(1,100, num=20)*1e-2
 
-print(cam1.F)
+Z=5e-2
 
-# Les focales ont aucun sens
+grid = []
 
-# ### Reconstruction
-# x=np.linspace(1,100, num=20)*1e-2
-# y=np.linspace(1,100, num=20)*1e-2
-#
-# Z=5e-2
-#
-# grid = []
-#
-# for i in range(len(x)):
-#     for j in range(len(y)):
-#         grid.append( np.array( [x[i], y[j], Z] ) )
-#
-# d=np.array([0,0,-1])
-# h=1e-3
-# precision=1
-#
-# surf = search(d, h, grid, precision, cam1, cam2, ecran)
-#
-# import matplotlib.pyplot as plt
-# from mpl_toolkits.mplot3d import Axes3D
-# fig=plt.figure()
-# ax=fig.add_subplot(111, projection='3d')
-#
-# for i in surf.points:
-#     ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
-# plt.show()
+for i in range(len(x)):
+    for j in range(len(y)):
+        grid.append( np.array( [x[i], y[j], Z] ) )
+
+d=np.array([0,0,-1]) #référentiel de l'écran
+h=1e-3
+precision=1
+
+surf = search(d, h, grid, precision, cam1, cam2, ecran)
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+fig=plt.figure()
+ax=fig.add_subplot(111, projection='3d')
+
+for i in surf.points:
+    ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
+plt.show()
