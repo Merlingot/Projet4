@@ -19,24 +19,26 @@ def search(h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    d=np.array([0,0,1])
+    d=np.array([0,0,-1])
     surface=Surface()
     for p in grid:
         p_min = p
         min = 10e100 #(infini)
-        while p[2]<0:
-            val = evaluatePoint(p, cam1, cam2, ecran)
+        while p[2]>-1:
+            val, n1, n2 = evaluatePoint(p, cam1, cam2, ecran)
             if val < min:
                 min = val
                 p_min = p
             p += h*d #search along d
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
-        p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2)
+        p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
+        print(ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran))
+        print("..")
         surface.ajouter_point( Point(p_min, min, n1, n2) )
     return surface
 
-def ternarySearch(absolutePrecision, lower, upper, cam1, cam2):
+def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
     """
     Find the maximum in the interval [<lower>, <upper>] with a precision of <absolutePrecision>.
     Recursive function.
@@ -57,16 +59,15 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2):
     # Everything works with vectors
     if abs(norm(upper - lower)) < absolutePrecision:
         p_min = (lower + upper)/2
-        min, n1, n2 = evaluatePoint(p_min, cam1, cam2)
+        min, n1, n2 = evaluatePoint(p_min, cam1, cam2, ecran)
         return p_min, min, n1, n2
     lowerThird = (2*lower + upper)/3
     upperThird = (lower + 2*upper)/3
 
-    if evaluatePoint(lowerThird, cam1, cam2) < evaluatePoint(upperThird,  cam1,
-                    cam2):
-        ternarySearch(absolutePrecision, lowerThird, upper, cam1, cam2)
+    if evaluatePoint(lowerThird, cam1, cam2, ecran) < evaluatePoint(upperThird,  cam1, cam2, ecran):
+        ternarySearch(absolutePrecision, lowerThird, upper, cam1, cam2, ecran)
     else:
-        ternarySearch(absolutePrecision, lower, upperThird, cam1, cam2)
+        ternarySearch(absolutePrecision, lower, upperThird, cam1, cam2, ecran)
 
 
 def m1(n1, n2):
@@ -95,7 +96,12 @@ def evaluatePoint(P, cam1, cam2, ecran):
         Inconsistensy, two normals
     """
     n1 = normal_at(P, cam1, ecran)
-    n2 = normal_at(P,cam2, ecran)
+    n2 = normal_at(P, cam2, ecran)
+
+    print(n1)
+    print(n2)
+    print(".....................................")
+
     return m1(n1, n2), n1, n2
 
 
@@ -121,7 +127,7 @@ def normal_at(P, cam, ecran):
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
     # Transformer un pixel sur la caméra à un pixel sur l'écran
-    v = cam.sgmf(u) #[v1,v2]
+    v = cam.pixCamToEcran(u) #[v1,v2]
     # Transformer de pixel au référentiel de l'écran
     e = ecran.pixelToSpace(v) #e=(x,y) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
     E = np.array([e[0], e[1], 0])
@@ -131,9 +137,9 @@ def normal_at(P, cam, ecran):
 def normale(P,E,C):
     """ Calculer une normale avec 3 points dans le même référentiel """
     PE = E-P; PC = C-P
-    pe = PE/np.norm(PE); pc = PC/np.norm(PC)
+    pe = PE/np.linalg.norm(PE); pc = PC/np.linalg.norm(PC)
     N = pe + pc
-    n = N/np.norm(N)
+    n = N/np.linalg.norm(N)
     return n
 
 

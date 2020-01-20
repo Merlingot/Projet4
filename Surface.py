@@ -11,5 +11,4 @@ class Surface:
     def __init__(self):
         self.points=[]
     def ajouter_point(self, point):
-        index=len(self.points)
-        self.points[index]=point
+        self.points.append(point)
