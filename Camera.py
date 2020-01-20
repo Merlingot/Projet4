@@ -28,14 +28,14 @@ class Camera:
         self.W = W                              # Taille du CCD en [mm]
         self.w = w                              # Taille du CCD en [pix]
 
-        self.sx = W[0]/w[0]
+        self.sx = W[0]/w[0]                     #[m/pixels]
         self.sy = W[1]/w[1]
 
         # Extrinsèque (Ecran -> Camera)
         self.R = R                              # Matrice de rotation
         self.T = T                              # Matrice de translation
 
-        self.F = ( K[0,0]/self.sx + K[1,1]/self.sy ) / 2. #Focale utile
+        self.F = ( K[0,0]*self.sx + K[1,1]*self.sy ) / 2. #Focale utile
 
 
         ## SGMF
@@ -49,6 +49,7 @@ class Camera:
         self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
 
         #-Pixel to Pixel cartography
+<<<<<<< HEAD
         #plt.figure()
         #axy = sns.heatmap(self.sgmf[:,:,0], cmap="cool")
 
@@ -56,6 +57,15 @@ class Camera:
         #axx = sns.heatmap(self.sgmf[:,:,1], cmap="cool")
 
         
+=======
+        # plt.figure()
+        # axy = sns.heatmap(self.sgmf[:,:,0], cmap="cool")
+        #
+        # plt.figure()
+        # axx = sns.heatmap(self.sgmf[:,:,1], cmap="cool")
+
+
+>>>>>>> test
 
     def spaceToPixel(self, vecSpace):
         """
@@ -78,10 +88,20 @@ class Camera:
         
         if uE[0] > 1 and uE[1] > 1 and uE[0] < self.sgmf.shape[0]-1 and uE[1] < self.sgmf.shape[1]-1:
 
+<<<<<<< HEAD
             vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
             vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
 
             return np.array([vx, vy])
         
+=======
+        if uE[0] > 1 and uE[1] > 1 and uE[0] < self.sgmf.shape[0]-1 and uE[1] < self.sgmf.shape[1]-1:
+
+            vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
+            vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+
+            return np.array([vx, vy])
+
+>>>>>>> test
         else:
             return np.array([0,0])
