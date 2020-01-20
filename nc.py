@@ -142,6 +142,9 @@ def normale(P,E,C):
     n = N/np.linalg.norm(N)
     return n
 
+
+
+
 def getApproxZDirection(R1, R2):
 
     zEcran = np.array([0, 0, 1])
@@ -160,6 +163,23 @@ def getApproxZDirection(R1, R2):
 
     return zDirApprox / np.linalg.norm(zDirApprox)
 
+
+
+
+def sauce(v1,v2,v3,t, hx, hy, kx, ky):
+
+    u1 = v1
+    u2 = v2 - v2@u1/(u1@u1)*u1
+    u3 = v3 - v3@u1/(u1@u1)*u1 - v3@u2/(u2@u2)*u2
+    e1 = u1/np.linalg.norm(u1)
+    e2 = u2/np.linalg.norm(u2)
+    e3 = u3/np.linalg.norm(u3)
+
+    grille = []
+    o = t/2
+    for i in range(-kx, kx):
+        for j in range(-ky, ky):
+            grille.append(o + i*hx*e2 + j*hy*e3)
 
 
 
