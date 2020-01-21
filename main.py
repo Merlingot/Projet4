@@ -59,12 +59,10 @@ sgmf2 = "cam_match_AV.png"
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
 ### Reconstruction
-x=np.linspace(-200, 200, num=50)*1e-2
-y=np.linspace(-200, 200, num=50)*1e-2
+x=np.linspace(-100,50, num=20)
+y=np.linspace(-100, 50, num=20)
 
-
-
-
+Z=200
 
 grid = []
 
@@ -74,12 +72,13 @@ for i in range(len(x)):
 
 d=getApproxZDirection(cam1.R, cam2.R) #référentiel de l'écran
 h=1e-3
-precision=1e-4
+precision=1e-2
 
 surf = search(d, h, grid, precision, cam1, cam2, ecran)
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
 fig=plt.figure()
 ax=fig.add_subplot(111, projection='3d')
 
@@ -89,9 +88,15 @@ for i in surf.points:
     z[j] = i.xyz[2]
     ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
     j+=1
-#ax.scatter(0,0,0)
-#ax.scatter(cam1.T[0], cam1.T[1], cam1.T[2])
-#ax.scatter(cam2.T[0], cam1.T[1], cam1.T[2])
+
+dirCam1 = np.dot(cam1.R, np.array([0,0,-1])) * 20
+dirCam2 = np.dot(cam2.R, np.array([0,0,-1])) * 20
+ax.scatter(0,0,0)
+ax.scatter(cam1.T[0], cam1.T[1], cam1.T[2])
+ax.scatter(cam2.T[0], cam2.T[1], cam2.T[2])
+ax.quiver(0,0,0,0,0,20)
+ax.quiver(cam1.T[0], cam1.T[1], cam1.T[2], dirCam1[0], dirCam1[1], dirCam1[2])
+ax.quiver(cam2.T[0], cam2.T[1], cam2.T[2], dirCam2[0], dirCam2[1], dirCam2[2])
 ##ax.set_zlim(np.min(z), np.max(z))
 
 plt.show()
