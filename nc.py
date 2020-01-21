@@ -184,20 +184,23 @@ def getApproxZDirection(cam1, cam2):
 
     z1_E = zE_E + zC1_E
     z2_E = zE_E + zC2_E
-
     return (z1_E + z2_E)/2
 
+def graham(v1, v2, v3):
+    """
+    Find the orthogonal basis with direction v1 as d
+    Args:
+    Return:
+    """
+    u1 = v1
+    e1 = u1/np.linalg.norm(u1)
+    u2 = v2 - ( np.dot(u1, v2) / np.dot(u1,u1) ) * u1
+    e2 = u2/np.linalg.norm(u2)
+    u3 = v3 - ( np.dot(u1, v3) / np.dot(u1,u1) ) * u1 - ( np.dot(u2, v3) / np.dot(u2,u2) ) * u2
+    e3 = u3/np.linalg.norm(u3)
 
 
-
-
-
-
-
-
-
-
-
+    return np.concatenate((e1,e2,e3), axis=0).reshape(3,3)
 
 
 

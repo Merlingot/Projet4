@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import cv2
 from skimage.io import imread, imsave
@@ -64,23 +65,35 @@ d=-getApproxZDirection(cam1, cam2)#référentiel de l'écran
 t=(cam1.S + cam2.S)/4
 
 ### Reconstruction
-x=np.linspace(-100,50, num=20)
-y=np.linspace(-100, 50, num=20)
+#x=np.linspace(-100,50, num=20)*1e-2
+#y=np.linspace(-100, 50, num=20)*1e-2
 
-Z=200
+#Z=20e-2
 
-grid = []
+#for i in range(len(x)):
+#    for j in range(len(y)):
+#        grid.append( np.array( [x[i], y[j], Z] ) )
 
-for i in range(len(x)):
-    for j in range(len(y)):
-        grid.append( np.array( [x[i], y[j], Z] ) )
 
 h=1e-3
 precision=1e-2
-# surf = search(d, h, grid, precision, cam1, cam2, ecran)
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+searchVolumeBasis = graham( d, [0,0,1], [0,1,0] )
+
+v1 = searchVolumeBasis[0]
+v2 = searchVolumeBasis[1]
+v3 = searchVolumeBasis[2]
+
+grid = []
+o = [0,0,0]
+dk = 1e-3
+k = 15
+for i in np.arange(-k, k):
+    for j in np.arange(-k, k):
+        a = o + i*dk*v2 + j*dk*v3
+        grid.append(a)
+
+surf = search(d, h, grid, precision, cam1, cam2, ecran)
 
 fig=plt.figure()
 ax = fig.gca(projection='3d')
