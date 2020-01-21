@@ -20,6 +20,8 @@ class Camera:
         # Setup
         self.ecran = ecran
 
+        self.U = []
+
         # Intrinsèque
         self.K = K                              # Tout information
         self.f = ( K[0,0] + K[1,1] ) / 2.       # Focale camera (moyenne de fx et fy)
@@ -50,13 +52,6 @@ class Camera:
         self.sgmf[:,:,0] = sgmfXY[:,:,1] * self.ecran.w[0] / 255.
         self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
 
-        #-Pixel to Pixel cartography
-        #plt.figure()
-        #axy = sns.heatmap(self.sgmf[:,:,0], cmap="cool")
-
-        #plt.figure()
-        #axx = sns.heatmap(self.sgmf[:,:,1], cmap="cool")
-
 
 
     def spaceToPixel(self, vecSpace):
@@ -70,9 +65,15 @@ class Camera:
             Vecteur de position en pixel
         """
         x, y = vecSpace[0], vecSpace[1]
+
         vx, vy = (x/self.sx + self.c[0]), (y/self.sy-self.c[1]) ##-1 pourquoi??
 
-        return np.array([vx,vy])
+        if vx > 1 and vy > 1 and vx < self.sgmf.shape[0]-1 and vy < self.sgmf.shape[1]-1:
+            self.U.append(np.array([vx,vy]))
+            return np.array([vx,vy])
+        else:
+            self.U.append(np.array([0,0]))
+            return np.array([0,0])
 
     def pixCamToEcran(self, u):
 
