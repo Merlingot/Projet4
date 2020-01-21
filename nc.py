@@ -2,6 +2,8 @@
 from Camera import Camera
 from Ecran import Ecran
 from Surface import Surface, Point
+import seaborn as sns
+
 
 import numpy as np
 from numpy import abs
@@ -37,6 +39,24 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
                     min = val
                     p_min = np.array([p[0],p[1],p[2]])
             p -= h*d #search along d
+
+        # Visualisation of SGMF points
+        #axy = sns.heatmap(cam1.sgmf[:,:,0], cmap="cool")
+
+        b=False
+        for pt in cam1.U:
+            if(pt[0] + pt[1] != 0):
+                b=True
+
+        if (b):
+            plt.figure()
+            for pt in cam1.U:
+                plt.scatter( pt[0], pt[1])
+            plt.show()
+
+        cam1.U = []
+        cam2.U = []
+
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
