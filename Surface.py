@@ -6,6 +6,8 @@ class Point:
         self.n1=n1
         self.n2=n2
 
+
+
 class Surface:
 
     def __init__(self, grid):
