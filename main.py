@@ -28,7 +28,8 @@ R1 = np.array([[-0.998, 0.01193, 0.01183],
              [-0.003297, 0.7564, -0.6541],
              [-0.02205, -0.6540, -0.7262]])
 
-T1 = np.array([56.368, -156.815, 142.289])
+T1 = np.array([56.368, -156.815, 142.289])*1e-3
+
 
 w1 = np.array( [3376, 2704] )
 W1 = w * 1.69e-6
@@ -48,7 +49,7 @@ R2 = np.array([[-0.9966, -0.05773, -0.05948],
              [-0.006757, 0.7718, -0.6358],
              [0.08262, -0.6333, -0.7659]])
 
-T2 = np.array([13.535, -156.640, 124.790])
+T2 = np.array([13.535, -156.640, 124.790])*1e-3
 
 w2 = np.array( [780, 580] )
 W2 = w * 8.3e-6
@@ -58,10 +59,12 @@ sgmf2 = "cam_match_AV.png"
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
 ### Reconstruction
-x=np.linspace(-50,100, num=50)*1e-2
-y=np.linspace(-50, 100, num=50)*1e-2
+x=np.linspace(-200, 200, num=50)*1e-2
+y=np.linspace(-200, 200, num=50)*1e-2
 
-Z=5e-2
+
+
+
 
 grid = []
 
@@ -70,7 +73,6 @@ for i in range(len(x)):
         grid.append( np.array( [x[i], y[j], Z] ) )
 
 d=getApproxZDirection(cam1.R, cam2.R) #référentiel de l'écran
-#d = np.array([0,0,1])
 h=1e-3
 precision=1e-4
 

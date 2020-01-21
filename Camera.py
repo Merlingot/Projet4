@@ -37,6 +37,8 @@ class Camera:
 
         self.F = ( K[0,0]*self.sx + K[1,1]*self.sy ) / 2. #Focale utile
 
+        self.S = np.linalg.inv(self.R)@self.T
+
 
         ## SGMF
         #-Importing cartography
