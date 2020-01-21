@@ -5,12 +5,15 @@ class Point:
         self.inconsistensy=min
         self.n1=n1
         self.n2=n2
+        self.pix_ccd=None
+        self.pix_ecran=None
+        self.sgmf_confirmed=False
 
 class Surface:
 
     def __init__(self, grid):
         self.points=[]
-        self.longueur=len(grid)
+        self.longueur=len(grid) #Nombre de point dans la grille
     def ajouter_point(self, point):
         self.points.append(point)
         if len(self.points) > self.longueur :

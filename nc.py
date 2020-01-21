@@ -124,11 +124,15 @@ def normal_at(P, cam, ecran):
     returns
         n = np.array([x,y,z]) (unit vector)
     """
-
+    # P : point dans le référentiel écran
+    # S : sténopé dans le référentiel écran
     # Mettre P dans le référentiel de la caméra
-    C = cam.R@P + cam.T #[X,Y,Z]
-    # Écraser Pc dans le référentiel 2D de la caméra
-    c = cam.F/C[2]*C[0:2] #[x,y]
+    # OP = vecteur sténopé-point P
+    OP = cam.R@P + cam.T #[X,Y,Z]
+    # OC = vecteur sténopé-point C (sur CCD)
+    OC = cam.F/OP[2]*OP #[X,Y,Z]
+    # c : point OC écrasé en 2D
+    c = OC[0:2] #[x,y]
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
     # Transformer un pixel sur la caméra à un pixel sur l'écran
@@ -136,6 +140,9 @@ def normal_at(P, cam, ecran):
     # Transformer de pixel au référentiel de l'écran
     e = ecran.pixelToSpace(v) #e=(x,y) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
     E = np.array([e[0], e[1], 0])
+
+    ## PROBLEME ? C est dans le référentiel de la caméra
+    # mais P est dans le référentiel de l'écran !
     return normale(P,E,C)
 
 
@@ -146,8 +153,6 @@ def normale(P,E,C):
     N = pe + pc
     n = N/np.linalg.norm(N)
     return n
-
-
 
 
 def getApproxZDirection(R1, R2):
@@ -188,9 +193,27 @@ def sauce(v1,v2,v3,t, hx, hy, kx, ky):
 
 
 
+def cadeauJC(p, cam1, cam2, ecran):
 
+    """
+    Arguments:
+        p: struct point
+     """
 
-
+    # 1. Tracer un vecteur du point p jusqu'au pinhole de la caméra
+    # (référentiel de l'écran)
+    P = p.xyz
+    # Mettre P dans le référentiel de la caméra
+    C = cam.R@P + cam.T #[X,Y,Z]
+    # Écraser Pc dans le référentiel 2D de la caméra
+    c = cam.F/C[2]*C[0:2] #[x,y]
+    # Mettre en pixel
+    u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
+    # Transformer un pixel sur la caméra à un pixel sur l'écran
+    v = cam.pixCamToEcran(u) #[v1,v2]
+    # Transformer de pixel au référentiel de l'écran
+    e = ecran.pixelToSpace(v) #e=(x,y) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
+    E = np.array([e[0], e[1], 0])
 
 
 
