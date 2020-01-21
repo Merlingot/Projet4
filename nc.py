@@ -22,7 +22,7 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    N=200 #nombre d'itérations (de descentes) pour un seul point
+    N=19 #nombre d'itérations (de descentes) pour un seul point
     surface=Surface(grid)
     for p in grid:
         n=0; bon=False
@@ -30,6 +30,7 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
         V = np.zeros(N)
         while n<N:
             n+=1
+            patate(p,cam1, cam2)
             val, n1, n2, bon = evaluatePoint(p, cam1, cam2, ecran)
             if bon:
                 if val < min:
@@ -41,6 +42,47 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
         surface.ajouter_point( Point(p_min, min, n1, n2) )
     return surface
+
+def patate(P, cam1, cam2):
+
+    fig=plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.auto_scale_xyz([0, 1], [0, 1], [0, 1])
+
+    ## Set aspect -----------------------------------------
+    X=np.array([0, cam1.S[0]*1.3])
+    Y=np.array([0, cam1.S[1]*1.3])
+    Z=np.array([0, cam1.S[2]*1.3])
+    # Create cubic bounding box to simulate equal aspect ratio
+    max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
+    Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
+    Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(Y.max()+Y.min())
+    Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
+    # Comment or uncomment following both lines to test the fake bounding box:
+    for xb, yb, zb in zip(Xb, Yb, Zb):
+       ax.plot([xb], [yb], [zb], 'w')
+    ## Set aspect -----------------------------------------
+
+    d1=cam1.S-P
+    ax.quiver(P[0],P[1],P[2], d1[0],d1[1],d1[2])
+
+    d2=cam2.S-P
+    ax.quiver(P[0],P[1],P[2], d2[0],d2[1],d2[2])
+
+    # ----------------------------------------------------
+    L=5e-2 #Longueur flêches
+    dirCam1 = np.dot(cam1.R, np.array([0,0,-1]))*L
+    dirCam2 = np.dot(cam2.R, np.array([0,0,-1]))*L
+    ax.scatter(0,0,0)
+    ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2], marker='x')
+    ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2], marker='x')
+    ax.quiver(0,0,0,0,0,L)
+    # ax.quiver(t[0],t[1],t[2], d[0]*L,d[1]*L,d[2]*L)
+    ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])
+    ax.quiver(cam2.S[0], cam2.S[1], cam2.S[2], dirCam2[0], dirCam2[1], dirCam2[2])
+
+    plt.show()
+
 
 
 def evaluatePoint(P, cam1, cam2, ecran):
