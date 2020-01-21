@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import cv2
 from skimage.io import imread, imsave
@@ -59,44 +60,50 @@ sgmf2 = "cam_match_AV.png"
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 
 ### Reconstruction
-x=np.linspace(-100,50, num=20)
-y=np.linspace(-100, 50, num=20)
+#x=np.linspace(-100,50, num=20)*1e-2
+#y=np.linspace(-100, 50, num=20)*1e-2
 
-Z=200
+#Z=20e-2
 
-grid = []
+#for i in range(len(x)):
+#    for j in range(len(y)):
+#        grid.append( np.array( [x[i], y[j], Z] ) )
 
-for i in range(len(x)):
-    for j in range(len(y)):
-        grid.append( np.array( [x[i], y[j], Z] ) )
 
 d=getApproxZDirection(cam1.R, cam2.R) #référentiel de l'écran
 h=1e-3
 precision=1e-2
 
-surf = search(d, h, grid, precision, cam1, cam2, ecran)
+searchVolumeBasis = graham( d, [0,0,1], [0,1,0] )
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+v1 = searchVolumeBasis[0]
+v2 = searchVolumeBasis[1]
+v3 = searchVolumeBasis[2]
+
+grid = []
+o = [0,0,0]
+dk = 1e-3
+k = 15
+for i in np.arange(-k, k):
+    for j in np.arange(-k, k):
+        a = o + i*dk*v2 + j*dk*v3
+        grid.append(a)
+
+surf = search(d, h, grid, precision, cam1, cam2, ecran)
 
 fig=plt.figure()
 ax=fig.add_subplot(111, projection='3d')
 
-j=0
-z = np.zeros(surf.longueur)
 for i in surf.points:
-    z[j] = i.xyz[2]
     ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
-    j+=1
 
 dirCam1 = np.dot(cam1.R, np.array([0,0,-1])) * 20
 dirCam2 = np.dot(cam2.R, np.array([0,0,-1])) * 20
 ax.scatter(0,0,0)
-ax.scatter(cam1.T[0], cam1.T[1], cam1.T[2])
-ax.scatter(cam2.T[0], cam2.T[1], cam2.T[2])
+ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2])
+ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2])
 ax.quiver(0,0,0,0,0,20)
-ax.quiver(cam1.T[0], cam1.T[1], cam1.T[2], dirCam1[0], dirCam1[1], dirCam1[2])
-ax.quiver(cam2.T[0], cam2.T[1], cam2.T[2], dirCam2[0], dirCam2[1], dirCam2[2])
-##ax.set_zlim(np.min(z), np.max(z))
+ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])
+ax.quiver(cam2.S[0], cam2.S[1], cam2.S[2], dirCam2[0], dirCam2[1], dirCam2[2])
 
 plt.show()

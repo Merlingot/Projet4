@@ -171,30 +171,21 @@ def getApproxZDirection(R1, R2):
 
     return zDirApprox / np.linalg.norm(zDirApprox)
 
-
-def sauce(v1,v2,v3,t, hx, hy, kx, ky):
-
+def graham(v1, v2, v3):
+    """
+    Find the orthogonal basis with direction v1 as d
+    Args:
+    Return:
+    """
     u1 = v1
-    u2 = v2 - v2@u1/(u1@u1)*u1
-    u3 = v3 - v3@u1/(u1@u1)*u1 - v3@u2/(u2@u2)*u2
     e1 = u1/np.linalg.norm(u1)
+    u2 = v2 - ( np.dot(u1, v2) / np.dot(u1,u1) ) * u1
     e2 = u2/np.linalg.norm(u2)
+    u3 = v3 - ( np.dot(u1, v3) / np.dot(u1,u1) ) * u1 - ( np.dot(u2, v3) / np.dot(u2,u2) ) * u2
     e3 = u3/np.linalg.norm(u3)
 
-    grille = []
-    o = t/2
-    for i in range(-kx, kx):
-        for j in range(-ky, ky):
-            grille.append(o + i*hx*e2 + j*hy*e3)
 
-
-
-
-
-
-
-
-
+    return np.concatenate((e1,e2,e3), axis=0).reshape(3,3)
 
 
 

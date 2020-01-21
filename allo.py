@@ -2,42 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-def sauce(v1,v2,v3,t, hx, hy, kx, ky):
-    u1 = v1
-    e1 = u1/np.linalg.norm(u1)
-    u2 = v2 - np.dot(u1, v2)*e1
-    e2 = u2/np.linalg.norm(u2)
-    u3 = v3 - np.dot(u1, v3)*e1 - np.dot(u2, v3)*e2
-    e3 = u3/np.linalg.norm(u3)
-
-    grille = []
-    o = t/2
-    for i in np.arange(-kx, kx):
-        for j in np.arange(-ky, ky):
-            a = o + i*hx*e2 + j*hy*e3
-            grille.append(a)
-    return grille
-
-def gs_cofficient(v1, v2):
-    return np.dot(v2, v1) / np.dot(v1, v1)
-
-def multiply(cofficient, v):
-    return map((lambda x : x * cofficient), v)
-
-def proj(v1, v2):
-    return multiply(gs_cofficient(v1, v2) , v1)
-
-def gs(X):
-    Y = []
-    for i in range(len(X)):
-        temp_vec = X[i]
-        for inY in Y :
-            proj_vec = proj(inY, X[i])
-            #print "i =", i, ", projection vector =", proj_vec
-            temp_vec = map(lambda x, y : x - y, temp_vec, proj_vec)
-            #print "i =", i, ", temporary vector =", temp_vec
-        Y.append(temp_vec)
-    return Y
 
 ####################################################################################
 ## - Donnnees
