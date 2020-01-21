@@ -72,7 +72,7 @@ for i in range(len(x)):
 d=getApproxZDirection(cam1.R, cam2.R) #référentiel de l'écran
 #d = np.array([0,0,1])
 h=1e-3
-precision=1e-2
+precision=1e-4
 
 surf = search(d, h, grid, precision, cam1, cam2, ecran)
 

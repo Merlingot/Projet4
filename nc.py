@@ -41,11 +41,6 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
                 a = n
             p -= h*d #search along d
             j+=1
-        #print(p_min)
-        #print(a)
-        #plt.figure()
-        #plt.plot(np.arange(0,N), V)
-        #plt.show()
 
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
@@ -111,10 +106,6 @@ def evaluatePoint(P, cam1, cam2, ecran):
     """
     n1 = normal_at(P, cam1, ecran)
     n2 = normal_at(P, cam2, ecran)
-
-    # print(n1)
-    # print(n2)
-    # print(".....................................")
 
     return m1(n1, n2), n1, n2
 
