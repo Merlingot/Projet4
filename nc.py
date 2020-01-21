@@ -153,39 +153,42 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
     #     ternarySearch(absolutePrecision, lower, upperThird, cam1, cam2, ecran)
 
 
-def getApproxZDirection(R1, R2):
+# def getApproxZDirection(R1, R2):
+#
+#     zEcran = np.array([0, 0, 1])
+#
+#     zCam1 = np.dot( R1, np.transpose(zEcran) )
+#     zCam1 /= np.linalg.norm(zCam1)
+#     zCam2 = np.dot( R2, np.transpose(zEcran) )
+#     zCam2 /= np.linalg.norm(zCam2)
+#
+#     zDirection1 = zEcran + zCam1
+#     zDirection1 /= np.linalg.norm(zDirection1)
+#     zDirection2 = zEcran + zCam2
+#     zDirection2 /= np.linalg.norm(zDirection2)
+#
+#     zDirApprox = zDirection1 + zDirection2
+#
+#     return zDirApprox / np.linalg.norm(zDirApprox)
 
-    zEcran = np.array([0, 0, 1])
 
-    zCam1 = np.dot( R1, np.transpose(zEcran) )
-    zCam1 /= np.linalg.norm(zCam1)
-    zCam2 = np.dot( R2, np.transpose(zEcran) )
-    zCam2 /= np.linalg.norm(zCam2)
+def getApproxZDirection(cam1, cam2):
 
-    zDirection1 = zEcran + zCam1
-    zDirection1 /= np.linalg.norm(zDirection1)
-    zDirection2 = zEcran + zCam2
-    zDirection2 /= np.linalg.norm(zDirection2)
+    zE_E = np.array([0,0,-1])
+    zC_C = np.array([0,0,1])
+    zC1_E = np.linalg.inv(cam1.R)@(zC_C)
+    zC1_E=zC1_E/np.linalg.norm(zC1_E)
+    zC2_E = np.linalg.inv(cam2.R)@(zC_C)
+    zC2_E=zC2_E/np.linalg.norm(zC2_E)
+    # print(zC1_E, zC2_E)
 
-    zDirApprox = zDirection1 + zDirection2
+    z1_E = zE_E + zC1_E
+    z2_E = zE_E + zC2_E
 
-    return zDirApprox / np.linalg.norm(zDirApprox)
+    return (z1_E + z2_E)/2
 
 
-def sauce(v1,v2,v3,t, hx, hy, kx, ky):
 
-    u1 = v1
-    u2 = v2 - v2@u1/(u1@u1)*u1
-    u3 = v3 - v3@u1/(u1@u1)*u1 - v3@u2/(u2@u2)*u2
-    e1 = u1/np.linalg.norm(u1)
-    e2 = u2/np.linalg.norm(u2)
-    e3 = u3/np.linalg.norm(u3)
-
-    grille = []
-    o = t/2
-    for i in range(-kx, kx):
-        for j in range(-ky, ky):
-            grille.append(o + i*hx*e2 + j*hy*e3)
 
 
 
