@@ -39,8 +39,7 @@ class Camera:
 
         self.F = ( K[0,0]*self.sx + K[1,1]*self.sy ) / 2. #Focale utile
 
-        self.S = np.linalg.inv(self.R)@self.T
-
+        self.S = self.camToEcran( np.array([0,0,0]) )
 
         ## SGMF
         #-Importing cartography
@@ -53,10 +52,21 @@ class Camera:
         self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
 
 
+    def ecranToCam(self, Pe):
+        """ Ref ecran -> cam"""
+        return self.R@Pe + self.T
+
+    def camToEcran(self, Pc):
+        """ Ref cam -> l'écran"""
+        return np.linalg.inv(self.R)@(Pc - self.T)
+
+    def camToCCD(self, C):
+        """ [x,y,z]-> [x,y,z] """
+        return -self.F/C[2]*C
 
     def spaceToPixel(self, vecSpace):
         """
-        ATTENTION
+        A reverifier
         Args:
         vecSpace: np.array([x,y])
             Vecteur de position en m
@@ -64,9 +74,10 @@ class Camera:
             np.array([u,v])
             Vecteur de position en pixel
         """
-        x, y = vecSpace[0], vecSpace[1]
+        vec = np.array([ vecSpace[0], vecSpace[1], self.F])
 
-        vx, vy = (x/self.sx + self.c[0]), (y/self.sy-self.c[1]) ##-1 pourquoi??
+        vecPix = self.K@vec
+        vx, vy = vecPix[0], vecPix[1]
 
         if vx > 1 and vy > 1 and vx < self.sgmf.shape[0]-1 and vy < self.sgmf.shape[1]-1:
             self.U.append(np.array([vx,vy]))
@@ -80,13 +91,9 @@ class Camera:
         uE = [int(np.floor(u[0])), int(np.floor(u[1]))] #entier
         uR = np.mod(u,1) #reste
 
-        if uE[0] > 1 and uE[1] > 1 and uE[0] < self.sgmf.shape[0]-1 and uE[1] < self.sgmf.shape[1]-1:
+        # if uE[0] > 1 and uE[1] > 1 and uE[0] < self.sgmf.shape[0]-1 and uE[1] < self.sgmf.shape[1]-1:
 
-            vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
-            vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+        vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
+        vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
 
-            return np.array([vx, vy])
-
-        else:  #Confidence map ?
-            return np.array([0,0,0])
-            # return None
+        return np.array([vx, vy])

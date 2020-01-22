@@ -64,7 +64,7 @@ cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 d=getApproxZDirection(cam1, cam2)#référentiel de l'écran
 t=(cam1.S + cam2.S)/4
 
-h=10e-3
+h=0.5e-3
 precision=1e-2
 
 searchVolumeBasis = graham( d, [0,0,1], [0,1,0] )
@@ -76,48 +76,46 @@ v3 = searchVolumeBasis[2]
 grid = []
 o = t
 dk = 1e-2
-k = 1
+k = 5
 for i in np.arange(-k, k):
     for j in np.arange(-k, k):
         a = o + i*dk*v2 + j*dk*v3
         grid.append(a)
 
-surf = search(d, h, [grid[0]], precision, cam1, cam2, ecran)
-# surf=grid
+surf = search(d, h, grid, precision, cam1, cam2, ecran)
 
-# fig=plt.figure()
-# ax = fig.gca(projection='3d')
-# ax.auto_scale_xyz([0, 1], [0, 1], [0, 1])
+fig=plt.figure()
+ax = Axes3D(fig, azim=-32, elev=1)
+ax.auto_scale_xyz([0, 1], [0, 1], [0, 1])
 
-# for i in surf.points:
-#     # ax.scatter( i[0], i[1], i[2])
-#     ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
+for i in surf.points:
+    ax.scatter( i.xyz[0], i.xyz[1], i.xyz[2])
 
-# ## Set aspect -----------------------------------------
-# X=np.array([0, cam1.S[0]*1.3])
-# Y=np.array([0, cam1.S[1]*1.3])
-# Z=np.array([0, cam1.S[2]*1.3])
-# # Create cubic bounding box to simulate equal aspect ratio
-# max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
-# Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
-# Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(Y.max()+Y.min())
-# Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
-# # Comment or uncomment following both lines to test the fake bounding box:
-# for xb, yb, zb in zip(Xb, Yb, Zb):
-#    ax.plot([xb], [yb], [zb], 'w')
-# ## Set aspect -----------------------------------------
+## Set aspect -----------------------------------------
+X=np.array([0, cam1.S[0]*1.3])
+Y=np.array([0, cam1.S[1]*1.3])
+Z=np.array([0, cam1.S[2]*1.3])
+# Create cubic bounding box to simulate equal aspect ratio
+max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
+Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
+Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(Y.max()+Y.min())
+Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
+# Comment or uncomment following both lines to test the fake bounding box:
+for xb, yb, zb in zip(Xb, Yb, Zb):
+   ax.plot([xb], [yb], [zb], 'w')
+## Set aspect -----------------------------------------
 
 
-# L=5e-2 #Longueur flêches
-# dirCam1 = np.dot(cam1.R, np.array([0,0,-1]))*L
-# dirCam2 = np.dot(cam2.R, np.array([0,0,-1]))*L
-# ax.scatter(0,0,0)
-# ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2], marker='x')
-# ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2], marker='x')
-# ax.quiver(0,0,0,0,0,L)
-# ax.quiver(t[0],t[1],t[2], d[0]*L,d[1]*L,d[2]*L)
-# ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])
-# ax.quiver(cam2.S[0], cam2.S[1], cam2.S[2], dirCam2[0], dirCam2[1], dirCam2[2])
-# #ax.set_zlim(np.min(z), np.max(z))
-#
-# plt.show()
+L=5e-2 #Longueur flêches
+dirCam1 = cam1.camToEcran(np.array([0,0,1]))*L
+dirCam2 = cam2.camToEcran(np.array([0,0,1]))*L
+ax.scatter(0,0,0)
+ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2], marker='x')
+ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2], marker='x')
+ax.quiver(0,0,0,0,0,-L)
+ax.quiver(t[0],t[1],t[2], d[0]*L,d[1]*L,d[2]*L)
+ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])
+ax.quiver(cam2.S[0], cam2.S[1], cam2.S[2], dirCam2[0], dirCam2[1], dirCam2[2])
+#ax.set_zlim(np.min(z), np.max(z))
+
+plt.show()
