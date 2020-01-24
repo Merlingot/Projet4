@@ -41,6 +41,10 @@ class Camera:
 
         self.S = self.camToEcran( np.array([0,0,0]) )
 
+        self.centre_x=None
+        self.centre_y=None
+        self.rayon=None
+
         ## SGMF
         #-Importing cartography
         sgmfXY = cv2.imread(sgmf)
@@ -66,7 +70,6 @@ class Camera:
 
     def spaceToPixel(self, vecSpace):
         """
-        A reverifier
         Args:
         vecSpace: np.array([x,y])
             Vecteur de position en m
@@ -80,13 +83,16 @@ class Camera:
         vx, vy = vecPix[0], vecPix[1]
 
         if vx > 1 and vy > 1 and vx < self.sgmf.shape[0]-1 and vy < self.sgmf.shape[1]-1:
-            self.U.append(np.array([vx,vy]))
+            if ( (vx-self.centre_x)**2 + (vy-self.centre_y)**2 < self.rayon**2 ):
+                self.U.append(np.array([vx,vy]))
             return np.array([vx,vy])
         else:
-            self.U.append(np.array([0,0]))
-            return np.array([0,0])
+            # return np.array([0,0])
+            return None
 
     def pixCamToEcran(self, u):
+
+        """ ATTENTION : A reverifier floor pour valeurs négatives """
 
         uE = [int(np.floor(u[0])), int(np.floor(u[1]))] #entier
         uR = np.mod(u,1) #reste

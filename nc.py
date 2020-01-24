@@ -11,7 +11,7 @@ from numpy.linalg import norm
 import matplotlib.pyplot as plt
 
 
-def search(d, h, grid, precision, cam1, cam2, ecran):
+def search(d, h, L, grid, precision, cam1, cam2, ecran):
     """
     Find the position (vector p_min) and value (min) of the minimum on each point of the grid
     Args:
@@ -24,9 +24,10 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    N=100 #nombre d'itérations (de descentes) pour un seul point
+    N=int(np.floor(L/h)) #nombre d'itérations (de descentes) pour un seul point
     surface=Surface(grid)
     for p in grid:
+        p_initial = np.array([ p[0], p[1], p[2] ])
         n=0; bon=False
         p_min = p; min = 1e10 #(infini)
         V = np.zeros(N)
@@ -42,31 +43,25 @@ def search(d, h, grid, precision, cam1, cam2, ecran):
             p += h*d #search ALONG d
 
         # Visualisation of SGMF points
-        # axy = sns.heatmap(cam1.sgmf[:,:,0], cmap="cool")
+        if cam1.U != [] and cam2.U != []:
+            f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+            ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
+            for pt in cam1.U:
+                ax1.scatter( pt[0], pt[1], color='r')
+            ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
+            for pt in cam2.U:
+                ax2.scatter( pt[0], pt[1], color='r')
+            ax3.scatter(np.arange(0,N), V)
+            plt.show()
 
-        # b=False
-        # for pt in cam1.U:
-        #     if(pt[0] + pt[1] != 0):
-        #         b=True
-        #
-        # if (b):
-        #     plt.figure()
-        #     for pt in cam1.U:
-        #         plt.scatter( pt[0], pt[1])
-        #     plt.show()
-        #
-        # cam1.U = []
-        # cam2.U = []
+        cam1.U = []
+        cam2.U = []
 
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
-        surface.ajouter_point( Point(p_min, min, n1, n2) )
-
-        # Voir les inconsistensy
-        # plt.figure()
-        # plt.plot(np.arange(0,N), V)
-        # plt.show()
+        if not (p_min[0] == p_initial[0]):
+            surface.ajouter_point( Point(p_min, min, n1, n2) )
 
     return surface
 
@@ -84,7 +79,7 @@ def evaluatePoint(P, cam1, cam2, ecran):
     n1 = normal_at(P, cam1, ecran); n2 = normal_at(P, cam2, ecran)
 
     if isinstance(n1, np.ndarray) and isinstance(n2, np.ndarray) :
-        return m1(n1, n2), n1, n2, True #True:existe sur les caméras
+        return m2(n1, n2), n1, n2, True #True:existe sur les caméras
     else:
         return None, None, None, False
 
@@ -171,13 +166,13 @@ def getApproxZDirection(cam1, cam2):
 
     zE_E = np.array([0,0,-1])
     zC_C = np.array([0,0,1])
-    zC1_E = np.linalg.inv(cam1.R)@(zC_C)
-    zC1_E=zC1_E/np.linalg.norm(zC1_E)
-    zC2_E = np.linalg.inv(cam2.R)@(zC_C)
-    zC2_E=zC2_E/np.linalg.norm(zC2_E)
+    zC1_E = cam1.camToEcran(zC_C)
+    zC1_E /= np.linalg.norm(zC1_E)
+    zC2_E = cam2.camToEcran(zC_C)
+    zC2_E /= np.linalg.norm(zC2_E)
 
-    z1_E = zE_E + zC1_E
-    z2_E = zE_E + zC2_E
+    z1_E = zE_E + zC1_E; z1_E /=np.linalg.norm(z1_E)
+    z2_E = zE_E + zC2_E; z2_E /=np.linalg.norm(z2_E)
     return (z1_E + z2_E)/2
 
 def graham(v1, v2, v3):
