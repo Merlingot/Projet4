@@ -20,12 +20,14 @@ class Camera:
         # Setup
         self.ecran = ecran
 
+        self.U = []
+
         # Intrinsèque
         self.K = K                              # Tout information
         self.f = ( K[0,0] + K[1,1] ) / 2.       # Focale camera (moyenne de fx et fy)
         self.c = np.array( [K[2,0], K[2,1]] )   # Centre optique du CCD [pix, pix]
         self.s = K[1,0]                         # Skew
-        self.W = W                              # Taille du CCD en [mm]
+        self.W = W                              # Taille du CCD en [m]
         self.w = w                              # Taille du CCD en [pix]
 
         self.sx = W[0]/w[0]                     #[m/pixels]
@@ -37,6 +39,11 @@ class Camera:
 
         self.F = ( K[0,0]*self.sx + K[1,1]*self.sy ) / 2. #Focale utile
 
+        self.S = self.camToEcran( np.array([0,0,0]) )
+
+        self.centre_x=None
+        self.centre_y=None
+        self.rayon=None
 
         ## SGMF
         #-Importing cartography
@@ -48,14 +55,22 @@ class Camera:
         self.sgmf[:,:,0] = sgmfXY[:,:,1] * self.ecran.w[0] / 255.
         self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
 
-        #-Pixel to Pixel cartography
-        #plt.figure()
-        #axy = sns.heatmap(self.sgmf[:,:,0], cmap="cool")
 
-        #plt.figure()
-        #axx = sns.heatmap(self.sgmf[:,:,1], cmap="cool")
+    def ecranToCam(self, Pe):
+        """ Ref ecran -> cam"""
+        return self.R@Pe + self.T
 
+<<<<<<< HEAD
 
+=======
+    def camToEcran(self, Pc):
+        """ Ref cam -> l'écran"""
+        return np.linalg.inv(self.R)@(Pc - self.T)
+
+    def camToCCD(self, C):
+        """ [x,y,z]-> [x,y,z] """
+        return -self.F/C[2]*C
+>>>>>>> marinouille
 
     def spaceToPixel(self, vecSpace):
         """
@@ -66,13 +81,22 @@ class Camera:
             np.array([u,v])
             Vecteur de position en pixel
         """
-        x, y = vecSpace[0], vecSpace[1]
-        vx, vy = (self.sx*x + self.c[0]), (self.sy*y-self.c[1])
+        vec = np.array([ vecSpace[0], vecSpace[1], self.F])
 
-        return np.array([vx,vy])
+        vecPix = self.K@vec
+        vx, vy = vecPix[0], vecPix[1]
+
+        if vx > 1 and vy > 1 and vx < self.sgmf.shape[0]-1 and vy < self.sgmf.shape[1]-1:
+            if ( (vx-self.centre_x)**2 + (vy-self.centre_y)**2 < self.rayon**2 ):
+                self.U.append(np.array([vx,vy]))
+            return np.array([vx,vy])
+        else:
+            # return np.array([0,0])
+            return None
 
     def pixCamToEcran(self, u):
 
+<<<<<<< HEAD
         uE = [int(np.floor(u[0])), int(np.floor(u[1]))]
         uR = np.mod(u,1)
 
@@ -80,9 +104,16 @@ class Camera:
 
             vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
             vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+=======
+        """ ATTENTION : A reverifier floor pour valeurs négatives """
+>>>>>>> marinouille
 
-            return np.array([vx, vy])
+        uE = [int(np.floor(u[0])), int(np.floor(u[1]))] #entier
+        uR = np.mod(u,1) #reste
 
-        else:
-            #Confidence map
-            return np.array([0,0])
+        # if uE[0] > 1 and uE[1] > 1 and uE[0] < self.sgmf.shape[0]-1 and uE[1] < self.sgmf.shape[1]-1:
+
+        vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
+        vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+
+        return np.array([vx, vy])
