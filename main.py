@@ -21,9 +21,9 @@ ecran = Ecran( W, w, c)
 ###################
 # Camera Point Grey
 
-K1 = np.array([[10346.82, 0., 0.],
+K1 = np.transpose( np.array([[10346.82, 0., 0.],
              [0., 10347.03, 0.],
-             [1611.22, 1363.49, 1.]])
+             [1611.22, 1363.49, 1.]]) )
 
 R1 = np.array([[-0.998, 0.01193, 0.01183],
              [-0.003297, 0.7564, -0.6541],
@@ -43,9 +43,9 @@ cam1.centre_x=1942; cam1.centre_y=1493; cam1.rayon=1000
 ####################
 # Camera Allied Vision
 
-K2 = np.array([[1996.64, 0., 0.],
+K2 = np.transpose( np.array([[1996.64, 0., 0.],
              [0., 1997.1, 0.],
-             [385.25, 286.69, 1.]])
+             [385.25, 286.69, 1.]]) )
 
 R2 = np.array([[-0.9966, -0.05773, -0.05948],
              [-0.006757, 0.7718, -0.6358],
@@ -63,7 +63,7 @@ cam2.centre_x=220; cam2.centre_y=270; cam2.rayon=210
 
 
 d=getApproxZDirection(cam1, cam2) #référentiel de l'écran
-t=(cam1.S*1.01)
+t=(cam1.S+cam2.S)/2
 
 h=1e-3
 precision=1e-2
@@ -71,21 +71,27 @@ l=60e-2
 
 searchVolumeBasis = graham( d, [0,0,1], [0,1,0] )
 
-v1 = searchVolumeBasis[0]
-v2 = searchVolumeBasis[1]
-v3 = searchVolumeBasis[2]
+# v1 = searchVolumeBasis[0]
+# v2 = searchVolumeBasis[1]
+# v3 = searchVolumeBasis[2]
+
+v2=(cam2.S-cam1.S)/np.linalg.norm((cam2.S-cam1.S))
+v3=(-cam2.S)/np.linalg.norm((cam2.S))
 
 grid = []
 o = t
-dk = 0.25e-2
-k = 10
-for i in np.arange(-k, k):
-    for j in np.arange(-k, k):
-        a = o + i*dk*v2 + j*dk*v3
+dk = 1e-2
+Lx=np.max( [cam1.S[0], cam2.S[0]] )
+Ly=np.max( [cam1.S[1], cam2.S[1]] )
+kx=int(np.floor(Lx/dk))
+ky=int(np.floor(Ly/dk))
+
+for j in np.arange(-kx, kx):
+    for i in np.arange(0, 2*ky):
+        a = o + i*dk*v3 + j*dk*v2
         grid.append(a)
 
 surf = search(d, h, l, grid, precision, cam1, cam2, ecran)
-
 
 fig=plt.figure()
 ax = Axes3D(fig, azim=-32, elev=1)
