@@ -10,10 +10,9 @@ from Ecran import Ecran
 from nc import *
 
 # Setup
-w = np.array( [1600, 900] )
-W = w * 0.277e-3
-c = np.array( [800, 450] )
-ecran = Ecran( W, w, c)
+w = np.array( [1600, 900] ) #pixels
+W = w * 0.277e-3 #m
+ecran = Ecran( W, w)
 
 ########################################################
 ## Parametre de calibration provenant de l'annee derniere
@@ -52,6 +51,7 @@ R2 = np.array([[-0.9966, -0.05773, -0.05948],
              [0.08262, -0.6333, -0.7659]])
 
 T2 = np.array([13.535, -156.640, 124.790])*1e-3
+
 
 w2 = np.array( [780, 580] )
 W2 = w * 8.3e-6

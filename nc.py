@@ -96,17 +96,20 @@ def normal_at(P, cam, ecran):
     returns
         n = np.array([x,y,z]) (unit vector)
     """
+    # Mettre P en coordonnées homogènes:
+    p = np.array([P[0], P[1], P[2], 1]) #[px, py, pz, 1]
+
     # Mettre P dans le référentiel de la caméra
-    C = cam.ecranToCam(P)
-    # Prolonger jusqu'au CCD et mettre en 2D
-    c = cam.camToCCD(C)[0:2] #[x,y]
+    C = cam.ecranToCam(p) #[px', py', pz', 1]
+    # Prolonger jusqu'au CCD
+    c = cam.camToCCD(C) #[U,V,F,1]
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à des pixel
     if isinstance(u, np.ndarray):
-        # Transformer un pixel sur la caméra à un pixel sur l'écran
+        # Transformer un pixel sur la caméra à un pixel sur l'écran (SGMF)
         v = cam.pixCamToEcran(u) #[v1,v2]
         # Transformer de pixel au référentiel de l'écran
-        e = ecran.pixelToSpace(v) #e=(x,y) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
+        e = ecran.pixelToSpace(v) #e=(x,y,1) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
         E = np.array([e[0], e[1], 0])
         return normale(P,E,cam.S)
     else:
