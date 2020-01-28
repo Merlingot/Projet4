@@ -4,6 +4,7 @@ import cv2
 from skimage.io import imread, imsave
 import seaborn as sns
 
+
 class Camera:
 
     """
@@ -61,8 +62,10 @@ class Camera:
 
 
     def ecranToCam(self, P):
-        """  [px, py, pz, 1] -> [px', py', pz', 1] """
-        return self.M@P.reshape(4,1)
+        """
+        * homogene
+        [px, py, pz, 1] -> [px', py', pz', 1] """
+        return self.M@P
 
     def camToEcran(self, P):
         """ [px', py', pz'] -> [px, py, pz]"""
@@ -70,43 +73,50 @@ class Camera:
         return Rinv@(P-self.T)
 
     def camToCCD(self, C):
-        """ [px', py', pz', 1] -> [U,V,F,1] """
-
+        """
+        * homogene
+        [px', py', pz', 1] -> [U,V,F,1] """
         pzp=C[2]
         loic = np.block( [ [ np.eye(3) , np.zeros((3,1)).reshape(3,1) ],
                 [np.zeros((1,3)).reshape(1,3) , pzp/self.F]
                 ])
-        return -self.F/pzp*loic@C.reshape(4,1)
+        return -self.F/pzp*loic@C
 
     def spaceToPixel(self, vecSpace):
         """
+        * homogene
         Args:
         vecSpace: np.array([U,V,F,1])
             Vecteur de position en m
         Returns:
-            np.array([u,v])
+            np.array([u,v,1])
             Vecteur de position en pixel
         """
-        loic = np.block( [ self.K , np.zeros((3,1)).reshape(3,1) ] )
+        loic = np.block( [ self.K , np.zeros((3,1))] )
         vecPix = (1/self.F)*loic@vecSpace
-        vx, vy = vecPix[0], vecPix[1]
+        u, v = vecPix[0], vecPix[1]
 
-        if vx > 1 and vy > 1 and vx < self.sgmf.shape[0]-1 and vy < self.sgmf.shape[1]-1:
-            if ( (vx-self.centre_x)**2 + (vy-self.centre_y)**2 < self.rayon**2 ):
-                self.U.append(np.array([vx,vy]))
-            return np.array([vx,vy])
+        if u > 1 and v > 1 and u < self.sgmf.shape[0]-1 and v < self.sgmf.shape[1]-1:
+            if ( (u-self.centre_x)**2 + (v-self.centre_y)**2 < self.rayon**2 ):
+                self.U.append(np.array([u,v]))
+                return np.array([u,v,1])
+            else:
+                # return np.array([0,0])
+                return None
         else:
-            # return np.array([0,0])
             return None
 
-    def pixCamToEcran(self, u):
+    def pixCamToEcran(self, vecPix):
 
-        """ ATTENTION : A reverifier floor pour valeurs négatives """
+        """
+        * homogene
+        [u,v,1] -> [u',v',1]
+        """
 
-        uE = [int(np.floor(u[0])), int(np.floor(u[1]))] #entier
-        uR = np.mod(u,1) #reste
+        uE = [int(np.floor(vecPix[0])), int(np.floor(vecPix[1]))] #entier
+        uR = np.mod(vecPix,1) #reste
 
-        vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
-        vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+        up = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
+        vp = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
 
-        return np.array([vx, vy])
+        return np.array([up, vp, 1])

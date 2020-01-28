@@ -62,14 +62,16 @@ cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
 cam2.centre_x=220; cam2.centre_y=270; cam2.rayon=210
 
 
-d=getApproxZDirection(cam1, cam2) #référentiel de l'écran
-t=(cam1.S+cam2.S)/2
+# d=getApproxZDirection(cam1, cam2) #référentiel de l'écran
+d = np.array([0,0,-1])
+# t=(cam1.S+cam2.S)/2
+t = np.array([0.2, -0.2, 0])
 
 h=1e-3
 precision=1e-2
 l=60e-2
 
-searchVolumeBasis = graham( d, [0,0,1], [0,1,0] )
+searchVolumeBasis = graham( d, [1,0,0], [0,1,0] )
 
 # v1 = searchVolumeBasis[0]
 # v2 = searchVolumeBasis[1]
@@ -80,14 +82,15 @@ v3=(-cam2.S)/np.linalg.norm((cam2.S))
 
 grid = []
 o = t
-dk = 1e-2
-Lx=np.max( [cam1.S[0], cam2.S[0]] )
-Ly=np.max( [cam1.S[1], cam2.S[1]] )
+dk = 5e-2
+Lx=2*np.max( [cam1.S[0], cam2.S[0]] )
+Ly=2*np.max( [cam1.S[1], cam2.S[1]] )
+Ly = Lx
 kx=int(np.floor(Lx/dk))
 ky=int(np.floor(Ly/dk))
 
 for j in np.arange(-kx, kx):
-    for i in np.arange(0, 2*ky):
+    for i in np.arange(-ky, ky):
         a = o + i*dk*v3 + j*dk*v2
         grid.append(a)
 

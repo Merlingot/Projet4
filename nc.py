@@ -11,6 +11,7 @@ from numpy.linalg import norm
 import matplotlib.pyplot as plt
 
 
+
 def search(d, h, L, grid, precision, cam1, cam2, ecran):
     """
     Find the position (vector p_min) and value (min) of the minimum on each point of the grid
@@ -29,7 +30,7 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
     for p in grid:
         p_initial = np.array([ p[0], p[1], p[2] ])
         n=0; bon=False
-        p_min = p; min = 1e10 #(infini)
+        p_min = p_initial; min = 1e10 #(infini)
         V = np.zeros(N)
         while n<N:
             n+=1
@@ -42,17 +43,18 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
                     p_min = np.array([p[0],p[1],p[2]])
             p += h*d #search ALONG d
 
+
         # Visualisation of SGMF points
-        # if cam1.U != [] and cam2.U != []:
-        #     f, (ax1, ax2, ax3) = plt.subplots(1, 3)
-        #     ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
-        #     for pt in cam1.U:
-        #         ax1.scatter( pt[0], pt[1], color='r')
-        #     ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
-        #     for pt in cam2.U:
-        #         ax2.scatter( pt[0], pt[1], color='r')
-        #     ax3.plot(np.arange(0,N), V, 'b')
-        #     plt.show()
+        if cam1.U != [] and cam2.U != []:
+            f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+            ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
+            for pt in cam1.U:
+                ax1.scatter( pt[0], pt[1], color='r')
+            ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
+            for pt in cam2.U:
+                ax2.scatter( pt[0], pt[1], color='r')
+            ax3.plot(np.arange(0,N), V, 'b')
+            plt.show()
 
         cam1.U = []
         cam2.U = []
@@ -60,66 +62,84 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
-        if not (p_min[0] == p_initial[0]):
-            surface.ajouter_point( Point(p_min, min, n1, n2) )
+        # if not (p_min[0] == p_initial[0]):
+        surface.ajouter_point( Point(p_min, min, n1, n2) )
 
     return surface
 
 
 
-def evaluatePoint(P, cam1, cam2, ecran):
+def evaluatePoint(p, cam1, cam2, ecran):
     """
     Evaluate the inconsistensy m of two measurements from cam1 and cam2 at a point p
     Args:
-        P = np.array([x,y,z])
+        p = np.array([x,y,z])
         cam1, cam2 : measurements nb. 1 and 2
     Returns:
         Inconsistensy, two normals
     """
+    P = homogene(p)
+
     n1 = normal_at(P, cam1, ecran); n2 = normal_at(P, cam2, ecran)
 
     if isinstance(n1, np.ndarray) and isinstance(n2, np.ndarray) :
-        return m2(n1, n2), n1, n2, True #True:existe sur les caméras
+        return m1(n1, n2), cartesienne(n1), cartesienne(n2), True #True:existe sur les caméras
     else:
         return None, None, None, False
 
 def normal_at(P, cam, ecran):
     """
+    *homogene
     Évaluer la normale en un point p
     Args:
-        P : np.array([x,y,z])
-            Point dans le référentiel de l'écran
+        P : np.array([x,y,z,1])
+            Point dans le référentiel de l'écran, homogène
         cam: Structure Camera
             Caméra qui regarde le point
         ecran : Structure écran
             Écran qui shoote des pattern
     returns
-        n = np.array([x,y,z]) (unit vector)
+        n = np.array([x,y,z,0]) (unit vector)
     """
-    # Mettre P en coordonnées homogènes:
-    p = np.array([P[0], P[1], P[2], 1]) #[px, py, pz, 1]
 
     # Mettre P dans le référentiel de la caméra
-    C = cam.ecranToCam(p) #[px', py', pz', 1]
+    C = cam.ecranToCam(P) #[px', py', pz', 1]
     # Prolonger jusqu'au CCD
     c = cam.camToCCD(C) #[U,V,F,1]
     # Mettre en pixel
-    u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à des pixel
+    u = cam.spaceToPixel(c) #[u1,u2,1]
     if isinstance(u, np.ndarray):
         # Transformer un pixel sur la caméra à un pixel sur l'écran (SGMF)
-        v = cam.pixCamToEcran(u) #[v1,v2]
+        vecPix = cam.pixCamToEcran(u) #[v1,v2,1]
         # Transformer de pixel au référentiel de l'écran
-        e = ecran.pixelToSpace(v) #e=(x,y,1) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
-        E = np.array([e[0], e[1], 0])
-        return normale(P,E,cam.S)
+        E = ecran.pixelToSpace(vecPix) #[x,y,0] # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
+        return normale(P, homogene(E), homogene(cam.S))
     else:
         return None
 
 
 # - Fonctions qui handles pas les None ------------------------------
+
+def homogene(vec):
+    """ np.array([x,y,z]) -> np.array([x,y,z,1])   """
+    if vec.size == 3:
+        return np.array([vec[0], vec[1], vec[2], 1])
+    else:
+        return vec
+
+def cartesienne(vec_hom):
+    """ np.array([x,y,z,1]) - > np.array([x,y,z]) """
+    if vec_hom.size == 4:
+        return np.array([vec_hom[0], vec_hom[1], vec_hom[2]])
+    else:
+        return vec_hom
+
+
 def normale(P,E,C):
-    """ Calculer une normale avec 3 points dans le même référentiel
-    P:point E:écran C:caméra
+    """
+    *homogene
+    Calculer une normale avec 3 points dans le même référentiel
+    P:point E:écran C:caméra (x,y,z,1)
     """
     PE = E-P; PC = C-P
     pe = PE/np.linalg.norm(PE); pc = PC/np.linalg.norm(PC)
@@ -128,19 +148,23 @@ def normale(P,E,C):
     return n
 
 def m1(n1, n2):
-    """Inconsistensy of the current point p.
+    """
+    *homogene
+    Inconsistensy of the current point p.
     Definition: m=1-absolute_value( n1<dot_product>n2 )
     Args:
-        n1, n2 : np.array([x,y,z])
+        n1, n2 : np.array([x,y,z,0])
     """
     return 1 - np.abs(n1@n2)
 
-def m2(n1, n2):
-    """Inconsistensy of the current point p.
-    Definition : m=n1<cross_product>n2
-    Args:
-        n1, n2 : np.array([x,y,z])"""
-    return norm(np.cross(n1, n2))
+# def m2(n1, n2):
+#     """
+#     *homogene
+#     Inconsistensy of the current point p.
+#     Definition : m=n1<cross_product>n2
+#     Args:
+#         n1, n2 : np.array([x,y,z,0])"""
+#     return norm(np.cross(n1, n2))
 
 def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
     """
