@@ -9,6 +9,8 @@ class Point:
         self.pix_ecran=None
         self.sgmf_confirmed=False
 
+
+
 class Surface:
 
     def __init__(self, grid):
