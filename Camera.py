@@ -95,19 +95,6 @@ class Camera:
             np.array([u,v,1])
             Vecteur de position en pixel
         """
-<<<<<<< HEAD
-        vec = np.array([ vecSpace[0], vecSpace[1], self.F])
-
-        vecPix = self.K@vec
-        vx, vy = vecPix[0], vecPix[1]
-
-        if vx > 1 and vy > 1 and vx < self.sgmf.shape[0]-1 and vy < self.sgmf.shape[1]-1:
-            # if ( (vx-self.centre_x)**2 + (vy-self.centre_y)**2 < self.rayon**2 ):
-
-            if (self.mask[int(vx),int(vy),2] > 100):
-                self.U.append(np.array([vx,vy]))
-            return np.array([vx,vy])
-=======
         loic = np.block( [ self.K , np.zeros((3,1))] )
         vecPix = (1/self.F)*loic@vecSpace
         u, v = vecPix[0], vecPix[1]
@@ -120,24 +107,10 @@ class Camera:
             else:
                 # return np.array([0,0])
                 return None
->>>>>>> marinouille
         else:
             return None
 
-<<<<<<< HEAD
-    def pixCamToEcran(self, u):
-
-        uE = [int(np.floor(u[0])), int(np.floor(u[1]))]
-        uR = np.mod(u,1)
-
-        if uE[0] > 1 and uE[1] > 1 and uE[0] < self.sgmf.shape[0]-1 and uE[1] < self.sgmf.shape[1]-1:
-
-            vx = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
-            vy = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
-        """ ATTENTION : A reverifier floor pour valeurs négatives """
-=======
     def pixCamToEcran(self, vecPix):
->>>>>>> marinouille
 
         """
         * homogene

@@ -69,9 +69,9 @@ d = np.array([0,0,-1])
 # t=(cam1.S+cam2.S)/2
 t = np.array([0, 0, 0])
 
-h=1e-3
+h=1e-2
 precision=1e-2
-l=60e-2
+l=6e-2
 
 searchVolumeBasis = graham( d, [1,0,0], [0,1,0] )
 
