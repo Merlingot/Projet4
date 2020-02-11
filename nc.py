@@ -44,17 +44,17 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
             p += h*d #search ALONG d
 
 
-        # Visualisation of SGMF points
-        if cam1.U != [] and cam2.U != []:
-            f, (ax1, ax2, ax3) = plt.subplots(1, 3)
-            ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
-            for pt in cam1.U:
-                ax1.scatter( pt[0], pt[1], color='r')
-            ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
-            for pt in cam2.U:
-                ax2.scatter( pt[0], pt[1], color='r')
-            ax3.plot(np.arange(0,N), V, 'b')
-            plt.show()
+        # # Visualisation of SGMF points
+        # if cam1.U != [] and cam2.U != []:
+        #     f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+        #     ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
+        #     for pt in cam1.U:
+        #         ax1.scatter( pt[0], pt[1], color='r')
+        #     ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
+        #     for pt in cam2.U:
+        #         ax2.scatter( pt[0], pt[1], color='r')
+        #     ax3.plot(np.arange(0,N), V, 'b')
+        #     plt.show()
 
         cam1.U = []
         cam2.U = []

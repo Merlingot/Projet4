@@ -37,7 +37,7 @@ W1 = w * 1.69e-6
 sgmf1 = "cam_match_PTG.png"
 
 cam1 = Camera(ecran, K1, R1, T1, W1, w1, sgmf1)
-cam1.centre_x=1942; cam1.centre_y=1493; cam1.rayon=1000
+cam1.centre_x=1942; cam1.centre_y=1493; cam1.rayon=900
 
 ####################
 # Camera Allied Vision
@@ -59,13 +59,13 @@ W2 = w * 8.3e-6
 sgmf2 = "cam_match_AV.png"
 
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
-cam2.centre_x=220; cam2.centre_y=270; cam2.rayon=210
+cam2.centre_x=220; cam2.centre_y=270; cam2.rayon=200
 
 
 # d=getApproxZDirection(cam1, cam2) #référentiel de l'écran
 d = np.array([0,0,-1])
 # t=(cam1.S+cam2.S)/2
-t = np.array([0.2, -0.2, 0])
+t = np.array([0, 0, 0])
 
 h=1e-3
 precision=1e-2
@@ -76,21 +76,19 @@ searchVolumeBasis = graham( d, [1,0,0], [0,1,0] )
 # v1 = searchVolumeBasis[0]
 # v2 = searchVolumeBasis[1]
 # v3 = searchVolumeBasis[2]
-
-v2=(cam2.S-cam1.S)/np.linalg.norm((cam2.S-cam1.S))
-v3=(-cam2.S)/np.linalg.norm((cam2.S))
+v3=np.array([0,1,0])
+v2=np.array([1,0,0])
 
 grid = []
 o = t
-dk = 5e-2
-Lx=2*np.max( [cam1.S[0], cam2.S[0]] )
-Ly=2*np.max( [cam1.S[1], cam2.S[1]] )
-Ly = Lx
+dk=5e-2
+Lx=200e-2/2
+Ly=200e-2/2
 kx=int(np.floor(Lx/dk))
 ky=int(np.floor(Ly/dk))
 
-for j in np.arange(-kx, kx):
-    for i in np.arange(-ky, ky):
+for j in np.arange(0, kx):
+    for i in np.arange(-ky, 0):
         a = o + i*dk*v3 + j*dk*v2
         grid.append(a)
 
@@ -124,6 +122,9 @@ dirCam2 = cam2.camToEcran(np.array([0,0,1]))*L
 ax.scatter(0,0,0)
 ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2], marker='x')
 ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2], marker='x')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
 ax.quiver(0,0,0,0,0,-L)
 ax.quiver(t[0],t[1],t[2], d[0]*L, d[1]*L, d[2]*L)
 ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])

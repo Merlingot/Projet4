@@ -98,8 +98,9 @@ class Camera:
 
         if u > 1 and v > 1 and u < self.sgmf.shape[0]-1 and v < self.sgmf.shape[1]-1:
             if ( (u-self.centre_x)**2 + (v-self.centre_y)**2 < self.rayon**2 ):
-                self.U.append(np.array([u,v]))
-                return np.array([u,v,1])
+                if np.abs( v - self.centre_y ) < np.sqrt(2)/2*self.rayon:
+                    self.U.append(np.array([u,v]))
+                    return np.array([u,v,1])
             else:
                 # return np.array([0,0])
                 return None
