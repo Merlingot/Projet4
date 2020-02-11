@@ -96,24 +96,6 @@ def normal_at(P, cam, ecran):
     returns
         n = np.array([x,y,z]) (unit vector)
     """
-<<<<<<< HEAD
-    # P : point dans le référentiel écran
-
-    # Mettre P dans le référentiel de la caméra
-    # C = vecteur sténopé-point P
-    C = cam.R@P + cam.T #[X,Y,Z]
-    # c : prolongement jusqu'au CCD puis écrasé en 2D
-    c = cam.F/C[2]*C[0:2] #[x,y]
-    # Mettre en pixel
-    u = cam.spaceToPixel(c) #[u1,u2] # spaceToPixel est une fonction qui passe de position x,y sur l'écran de la caméra à  des pixel
-    # Transformer un pixel sur la caméra à un pixel sur l'écran
-    v = cam.pixCamToEcran(u) #[v1,v2]
-    # Transformer de pixel au référentiel de l'écran
-    e = ecran.pixelToSpace(v) #e=(x,y) # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
-    E = np.array([e[0], e[1], 0])
-
-    return normale(P,E,C)
-=======
     # Mettre P dans le référentiel de la caméra
     C = cam.ecranToCam(P)
     # Prolonger jusqu'au CCD et mettre en 2D
@@ -129,7 +111,6 @@ def normal_at(P, cam, ecran):
         return normale(P,E,cam.S)
     else:
         return None
->>>>>>> marinouille
 
 
 # - Fonctions qui handles pas les None ------------------------------
@@ -151,25 +132,6 @@ def m1(n1, n2):
     """
     return 1 - np.abs(n1@n2)
 
-<<<<<<< HEAD
-def getApproxZDirection(R1, R2):
-
-    zEcran = np.array([0, 0, 1])
-
-    zCam1 = np.dot( R1, np.transpose(zEcran) )
-    zCam1 /= np.linalg.norm(zCam1)
-    zCam2 = np.dot( R2, np.transpose(zEcran) )
-    zCam2 /= np.linalg.norm(zCam2)
-
-    zDirection1 = zEcran + zCam1
-    zDirection1 /= np.linalg.norm(zDirection1)
-    zDirection2 = zEcran + zCam2
-    zDirection2 /= np.linalg.norm(zDirection2)
-
-    zDirApprox = zDirection1 + zDirection2
-
-    return zDirApprox / np.linalg.norm(zDirApprox)
-=======
 def m2(n1, n2):
     """Inconsistensy of the current point p.
     Definition : m=n1<cross_product>n2
@@ -198,7 +160,6 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
     min, n1, n2, _ = evaluatePoint(p_min, cam1, cam2, ecran)
     return p_min, min, n1, n2
 
->>>>>>> marinouille
 
 
 def getApproxZDirection(cam1, cam2):
