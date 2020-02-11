@@ -35,8 +35,9 @@ w1 = np.array( [3376, 2704] )
 W1 = w * 1.69e-6
 
 sgmf1 = "cam_match_PTG.png"
+mask1 = "conf_PG.png"
 
-cam1 = Camera(ecran, K1, R1, T1, W1, w1, sgmf1)
+cam1 = Camera(ecran, K1, R1, T1, W1, w1, sgmf1, mask1)
 cam1.centre_x=1942; cam1.centre_y=1493; cam1.rayon=900
 
 ####################
@@ -57,8 +58,9 @@ w2 = np.array( [780, 580] )
 W2 = w * 8.3e-6
 
 sgmf2 = "cam_match_AV.png"
+mask2 = "conf_AV.png"
 
-cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
+cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2, mask2)
 cam2.centre_x=220; cam2.centre_y=270; cam2.rayon=200
 
 
