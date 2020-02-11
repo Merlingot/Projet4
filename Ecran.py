@@ -4,28 +4,27 @@ import numpy as np
 
 class Ecran:
 
-    def __init__(self, W, w, c):
+    def __init__(self, W, w):
         """
         W = np.array([W,Wy]) # [m]
         w = np.array([wx,wy]) # [pixel]
-        c = np.array([cx,cy]) # [pixel]
         """
-        self.W = W
-        self.w = w
-        self.c =c
+        self.W=W
+        self.w=w
 
-        self.sx = w[0]/W[0]
-        self.sy = w[1]/W[1]
+        alpha_x = W[0]/w[0]; alpha_y = W[1]/w[1]
+
+        self.loic = np.zeros((3,3))
+        self.loic[0,0]=alpha_x; self.loic[1,1]=alpha_y
 
     def pixelToSpace(self, vecPix):
         """
+        * homogene
         Args:
-        vecPix: np.array([ux,uy])
+        vecPix: np.array([u',v',1])
             Vecteur de position en pixels
         Returns:
-            np.array([x,y])
+            np.array([x,y,0])
             Vecteur de position en m
         """
-        ux,uy = vecPix[0], vecPix[1]
-        x,y = (ux - self.c[0])/self.sx, (uy-self.c[1])/self.sy
-        return np.array([x,y])
+        return self.loic@vecPix
