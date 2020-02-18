@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<generator>
+  <name>phaseshift</name>
+  <param>
+    <!--
+    Type : size
+    Range : [ 0x0 , 10000x10000 ] 
+    Description : Size of the pattern to generate
+    Default value : 800x600
+    -->
+    <size>1600 900</size>
+    <!--
+    Type : int
+    Valid values : [ 1, 2, 3 ] 
+    Description : Direction for the pattern
+    Default value : 1
+    -->
+    <direction>3</direction>
+    <!--
+    Type : vector of ints
+    Range : [ 3 , 2147483647 ] 
+    Description : Number of shifts each sine wave is shifted
+    Default value : [ 10, 3, 3, 3, 3, 3, 3, 3 ]
+    -->
+    <numShifts>
+      4 4 4</numShifts>
+    <!--
+    Type : vector of doubles
+    Description : Periods of each sine wave
+    Default value : [ 16, 32, 64, 128, 256, 512, 1024, 2048 ]
+    -->
+    <periods>
+      128. 512. 2048.</periods>
+    <generationMethod>
+      <name>default</name>
+      <param>
+        <!--
+        Type : bool
+        Description : Diamond Pixels
+        Default value : 0
+        -->
+        <diamondPixels>0</diamondPixels>
+        </param></generationMethod></param></generator>
+</opencv_storage>

@@ -1,5 +1,22 @@
 
+******* ICI ********
+_______________________________________
+COMMANDS for functionning unwrapping:
 
+#############################
+##-Get les photos des patterns projeté sur la lentille
+1) Projettez les photos du folder "fringes" sur l'écran
+2) Prendre photo avec cameras dans le
+
+#############################
+##-Get mapping
+
+cl3ds_match -m phaseshift_matcher.xml -k "cam match" -o cam_match.png
+
+
+***********************************************************************************
+***********************************************************************************
+******* PAS ICI ********
 _______________________________________
 ##-Distortion parameters:
 
@@ -13,8 +30,6 @@ _______________________________________
  k6 = ; #-??
 
 #-For Displacement, set offset in function
-
-
 _______________________________________
 COMMANDS for functionning unwrapping:
 
@@ -34,6 +49,7 @@ python3 wardWithDisplacement.py
 cl3ds_match -m phaseshift_matcher.xml -k "cam match" -o cam_match.png
 
 
+****** PAS ICI *******************
 _______________________________________
 COMMANDS for full unwrapping:
 (Still causes segmentation fault!)
