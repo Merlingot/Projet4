@@ -17,6 +17,27 @@ ecran = Ecran( W, w)
 ########################################################
 ## Parametre de calibration provenant de l'annee derniere
 
+# calibration by Vinczzz et Justzzzin
+RRRR1 = np.array([[-9.999802e-01 , -5.087074e-03 , 3.694001e-03 ],
+             [-6.243377e-03 , 8.725079e-01, -4.885601e-01 ],
+             [-7.377037e-04, -4.885735e-01 , -8.725224e-01  ]])
+
+
+np.transpose(RRRR1)@RRRR1
+np.linalg.det(RRRR1)
+
+RRRR2 = np.array([[-9.857817e-01 , -7.957567e-02 , -1.479939e-01 ],
+             [1.474141e-03  ,8.766230e-01, -4.811755e-01  ],
+             [1.680247e-01 , -4.745522e-01 , -8.640416e-01   ]])
+
+np.transpose(RRRR2)@RRRR2
+np.linalg.det(RRRR2)
+
+
+
+#les matrices de rotation sont unitaires, càd RRt = RtR = I et det(R) = 1 c'est un TRES bon resultat.
+
+
 ###################
 # Camera Point Grey
 
@@ -28,6 +49,7 @@ R1 = np.array([[-0.998, 0.01193, 0.01183],
              [-0.003297, 0.7564, -0.6541],
              [-0.02205, -0.6540, -0.7262]])
 
+
 T1 = np.array([56.368, -156.815, 142.289])*1e-3
 
 
@@ -37,7 +59,7 @@ W1 = w * 1.69e-6
 sgmf1 = "cam_match_PTG.png"
 mask1 = "conf_PG.png"
 
-cam1 = Camera(ecran, K1, R1, T1, W1, w1, sgmf1)
+cam1 = Camera(ecran, K1, R1, T1, W1, w1, sgmf1, mask1)
 cam1.centre_x=1942; cam1.centre_y=1493; cam1.rayon=900
 
 ####################
@@ -60,8 +82,11 @@ W2 = w * 8.3e-6
 sgmf2 = "cam_match_AV.png"
 mask2 = "conf_AV.png"
 
-cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2)
+cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2, mask2)
 cam2.centre_x=220; cam2.centre_y=270; cam2.rayon=200
+
+
+#################################################################
 
 
 # d=getApproxZDirection(cam1, cam2) #référentiel de l'écran
@@ -69,9 +94,9 @@ d = np.array([0,0,-1])
 # t=(cam1.S+cam2.S)/2
 t = np.array([0, 0, 0])
 
-h=1e-2
+h=15e-2
 precision=1e-2
-l=6e-2
+l=1000e-2
 
 searchVolumeBasis = graham( d, [1,0,0], [0,1,0] )
 
@@ -83,9 +108,9 @@ v2=np.array([1,0,0])
 
 grid = []
 o = t
-dk=5e-2
-Lx=200e-2/2
-Ly=200e-2/2
+dk=50e-2
+Lx=1000e-2
+Ly=2000e-2
 kx=int(np.floor(Lx/dk))
 ky=int(np.floor(Ly/dk))
 
