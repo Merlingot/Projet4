@@ -15,7 +15,6 @@ W = w * 0.277e-3 #m
 ecran = Ecran( W, w)
 
 ########################################################
-## Parametre de calibration provenant de l'annee derniere
 
 # calibration by Vinczzz et Justzzzin
 RRRR1 = np.array([[-9.999802e-01 , -5.087074e-03 , 3.694001e-03 ],
