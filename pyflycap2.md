@@ -3,8 +3,10 @@
 Plus d'informations: https://pypi.org/project/pyflycap2/
 
 
-### from pyflycap2.interface import CameraContext
+### Reading serial number 
 ```
+from pyflycap2.interface import CameraContext
+
 cc = CameraContext()
 cc.rescan_bus()
 print(cc.get_gige_cams())  # prints list of serial numbers.
@@ -14,6 +16,7 @@ cam_serial = cc.get_gige_cams()
 ### Reading images from a camera
 ```
 from pyflycap2.interface import Camera
+
 c = Camera(serial=cam_serial)
 c.connect()
 c.start_capture()
