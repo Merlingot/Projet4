@@ -1,7 +1,8 @@
 # Install pycapture2
 
-#### Install flycap beforehand
+##### Install `flycap` beforehand
 
+```
 $ cd ~/flycap/flycapture2/Python/
 
 $ tar -xvzf PyCapture2-2.13.31_amd64_Ubuntu18.04.tar.gz
@@ -17,10 +18,12 @@ $ pip3 install numpy cython setuptools
 $ cd ~/PyCapture2-2.13.31
 
 $ sudo python3 setup.py install
+```
 
 # Install pymba 
 
-#### Install vimba beforehand
-
+##### Install `vimba` beforehand
+```
 $ pip3 install pymba
+```
 
