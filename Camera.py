@@ -9,12 +9,12 @@ class Camera:
 
     """
     Input:
-       -K : Matrice intrinsèque de la camera contenant (fx,fy,s,cx,cy)             | np.narray()
-       -R : Matrice de rotation pour le passage entre ref_{ecran} -> ref_{cam}     | np.narray()
-      -T : Matrice de translation pour le passage entre ref_{ecran} -> ref{cam}   | np.narray()
-       -W : Vecteur de la taille du CCD de la camera en [mm]                       | np.array()
-       -w : Vecteur de la taille du CCD de la camera en [pix]                      | np.array()
-       -SGMF : String du nom du PNG de cartographie de pixel entre camera et ecran | str()
+        -K      : Matrice intrinsèque de la camera contenant (fx,fy,s,cx,cy)             | np.narray()
+        -R      : Matrice de rotation pour le passage entre ref_{ecran} -> ref_{cam}     | np.narray()
+        -T      : Matrice de translation pour le passage entre ref_{ecran} -> ref{cam}   | np.narray()
+        -W      : Vecteur de la taille du CCD de la camera en [mm]                       | np.array()
+        -w      : Vecteur de la taille du CCD de la camera en [pix]                      | np.array()
+        -SGMF   : String du nom du PNG de cartographie de pixel entre camera et ecran | str()
     """
     def __init__(self, ecran, K, R, T, W, w, sgmf, mask):
 

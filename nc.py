@@ -274,9 +274,4 @@ def patate(P, cam1, cam2, n1, n2):
 
 
 
-
-
-
-
-
 #

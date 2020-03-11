@@ -25,7 +25,9 @@ distCoeff[7,0] = k6;
 
 for i in range(24):
     
-    src    = imread("../fringes/fringes_{:03d}.png".format(i))
+    src    = imread("thScan/dstFringes_{:03d}.png".format(i))
+
+    print(src[0,0,:])
     print("fringes_{:03d}.png".format(i) + "-->" + "dstFringes_{:03}.png".format(i)) 
     #-Define image caracteristics
     width  = src.shape[1]
@@ -38,11 +40,11 @@ for i in range(24):
     cam[0,0] = 10.        # define focal length x
     cam[1,1] = 10.        # define focal length y
 
-    dst = cv2.undistort(src,cam,distCoeff)
+    # dst = cv2.undistort(src,cam,distCoeff)
    
     #cv2.imshow('dst', dst)
 
-    imsave("../thScan/dstFringes_{:03d}.png".format(i), dst)
+    imsave("thScan/dstFringes_{:03d}.png".format(i), src)
 
     #cv2.waitKey(0)
 
