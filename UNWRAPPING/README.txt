@@ -13,7 +13,7 @@ COMMANDS for functionning unwrapping:
 #############################
 ##-Faire le unwrapping
 
-4) CTRL+SHIFT+T pour ouvrir le terminal
+4) CTRL+ALT+T pour ouvrir le terminal
 5) Entrer les commande 
 $ cd /home/labo/Projet4/UNWRAPPING
 $ ./unwrap.sh

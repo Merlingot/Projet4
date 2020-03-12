@@ -191,6 +191,8 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
 
 def getApproxZDirection(cam1, cam2):
 
+
+# dudo
     zE_E = np.array([0,0,-1])
     zC_C = np.array([0,0,1])
     zC1_E = cam1.camToEcran(zC_C)
