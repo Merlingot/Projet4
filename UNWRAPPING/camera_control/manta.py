@@ -8,6 +8,57 @@ from typing import Optional
 from pymba import Frame
 
 
+def test_pymba():
+    with Vimba() as vimba:
+        camera = vimba.camera(0)
+        camera.open()
+
+        camera.arm('SingleFrame')
+
+        # capture a single frame, more than once if desired
+        for i in range(1):
+            try:
+                frame = camera.acquire_frame()
+                display_frame(frame, 0)
+            except VimbaException as e:
+                # rearm camera upon frame timeout
+                if e.error_code == VimbaException.ERR_TIMEOUT:
+                    print(e)
+                    camera.disarm()
+                    camera.arm('SingleFrame')
+                else:
+                    raise
+
+        camera.disarm()
+        camera.close()
+
+
+def test():
+    
+    with Vimba() as vimba:
+
+        # Find and open camera
+        cam=vimba.camera(0)
+        cam.open()
+        
+        # Test single frame acquisition
+        cam.arm('SingleFrame')
+        frame=take_frame(cam)
+        display_frame(frame)
+        save_frame(frame, 'test_manta')
+        
+        # Test continous frame acquisition
+        cam.arm('Continuous', display_frame)
+        cam.start_frame_acquisition() 
+        input('Press enter to stop streaming')
+        cam.stop_frame_acquisition()
+
+        # Close camera
+        cam.disarm()
+        cam.close()       
+
+
+
 def ext_callib(name, destination=None):
     """
     Prend X photo avec la caméra détectée et l'enregistre sous le nom <image_name_i>.png en format png dans le répertoire <destination>.
@@ -75,8 +126,8 @@ def display_frame(frame):
         frame: The frame object to display.
     """
     image = frame_to_image(frame)
-    # imshow(image)
-    viewer = ImageViewer(image); viewer.show()
+    imshow(image)
+    #viewer = ImageViewer(image); viewer.show()
 
 def save_frame(frame, name, destination=None):
     """

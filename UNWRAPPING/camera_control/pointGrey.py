@@ -3,36 +3,57 @@
 #=============================================================================
 
 import PyCapture2
+import numpy as np
+import matplotlib.pyplot as plt
 
-def main(name, destination=None, num_images_to_grab=10):
-
+def ext_callib(name, destination=None):
     """
-    Prend une seule photo la caméra détectée et l'enregistre sous le nom <image_name>.png en format png dans le répertoire <destination>.
+    Prend X photo avec la caméra détectée et l'enregistre sous le nom <image_name_i>.png en format png dans le répertoire <destination>.
     name (str):
         nom pour enregistrer l'image sans l'extension
     destination (str):
         path relatif/absolu au répertoire de sauvegarge
         default=None. Si non spécifié, sauvegarde dans le repertoire actuel.
-    num_images_to_grab (int) :
-        nombre de capture de buffer à prendre.
-        default=1.
     """
+    i=0
+    continue_callibration=True
+    cam=get_camera()
+    print('Ready fo callibration :)')
+    cam.startCapture()
+    while continue_callibration == True:
+        user_input = input('Press \n (y) to take image \n (q) to exit \n')
+        if user_input == 'y' :
+            print('Taking image...')
+            frame=take_frame(cam)
+            display_frame(frame)
+            print('Saving image...')
+            name_i=name+'_{}'.format(str(i))
+            save_frame(frame, name_i, destination)
+            i+=1
+        elif user_input == 'q':
+            print('Exiting...')
+            cam.stopCapture()
+            cam.disconnect()
+            continue_callibration=False
+        else:
+            cam.stopCapture()
+            print('Please enter a valid key (y/q)')
+
+
+def test(name, destination=None):
 
     # Trouver la camera
     cam = get_camera()
 
     # Take the image
-    print('Starting image capture...')
-    cam.startCapture()
-    frame = take_frame(cam, num_images_to_grab)
+    cam.startCapture(display_frame)
+#    frame = take_frame(cam)
+    input('cac')
     cam.stopCapture()
     cam.disconnect()
 
     # Save image
-    print('Saving image...')
     save_frame(frame, name, destination)
-
-    input('Done! Press Enter to exit...\n')
 
 def get_camera():
     """ Trouve une camera physique et retourne son object camera """
@@ -61,6 +82,15 @@ def take_frame(cam, num_images_to_grab=10):
     return frame
 
 
+def display_frame(frame):
+    newimg = frame.getData()
+    cols = frame.getCols(); rows = frame.getRows()
+    a = np.array(newimg)
+    a=a.reshape(rows, cols)
+    plt.imshow(a)
+    plt.show()
+        
+
 def save_frame(frame, name, destination=None):
 
     path = "{}{}.png".format( destination if destination is not None else "", name)
@@ -68,13 +98,4 @@ def save_frame(frame, name, destination=None):
     isSaved = newimg.save(path.encode('utf-8'), PyCapture2.IMAGE_FILE_FORMAT.PNG)
 
 
-
-def enable_embedded_timestamp(cam, enable_timestamp):
-    """ Permet d'activer/désactiver le compteur interne (timestep) de la camera <cam>."""
-    embedded_info = cam.getEmbeddedImageInfo()
-    if embedded_info.available.timestamp:
-        cam.setEmbeddedImageInfo(timestamp = enable_timestamp)
-        if enable_timestamp :
-            print('\nTimeStamp is enabled.\n')
-        else:
-            print('\nTimeStamp is disabled.\n')
+test('name')
