@@ -66,7 +66,7 @@ def save_frame(frame, name, destination=None):
     path = "{}{}.png".format( destination if destination is not None else "", name)
     newimg = frame.convert(PyCapture2.PIXEL_FORMAT.BGR)
     isSaved = newimg.save(path.encode('utf-8'), PyCapture2.IMAGE_FILE_FORMAT.PNG)
-    
+
 
 
 def enable_embedded_timestamp(cam, enable_timestamp):
