@@ -91,5 +91,26 @@ def frame_to_image(frame):
     return new_image     
 
 
-main('ma')
+from time import sleep
+
+
+def stream():
+
+    with Vimba() as vimba:
+        camera = vimba.camera(0)
+        camera.open()
+
+        # arm the camera and provide a function to be called upon frame ready
+        camera.arm('Continuous', display_frame)
+        camera.start_frame_acquisition()
+
+        # stream images for a while...
+        sleep(5)
+
+        # stop frame acquisition
+        # start_frame_acquisition can simply be called again if the camera is still armed
+        camera.stop_frame_acquisition()
+        camera.disarm()
+
+        camera.close()
 
