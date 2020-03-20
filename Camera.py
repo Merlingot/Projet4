@@ -28,8 +28,8 @@ class Camera:
         self.f = ( K[0,0] + K[1,1] ) / 2.       # Focale camera (moyenne de fx et fy)
         self.c = np.array( [K[2,0], K[2,1]] )   # Centre optique du CCD [pix, pix]
         self.s = K[1,0]                         # Skew
-        self.W = W                              # Taille du CCD en [m]
-        self.w = w                              # Taille du CCD en [pix]
+        self.W = W                              # Taille du CCD en [W]=m
+        self.w = w                              # Taille du CCD en [w]=pixels
 
         self.sx = W[0]/w[0]                     #[m/pixels]
         self.sy = W[1]/w[1]
@@ -44,6 +44,7 @@ class Camera:
 
         self.F = ( K[0,0]*self.sx + K[1,1]*self.sy ) / 2. #Focale utile
 
+        # Position du pinhole de la caméra dans le référentiel de l'écran
         self.S = self.camToEcran( np.array([0,0,0]) )
 
         self.centre_x=None

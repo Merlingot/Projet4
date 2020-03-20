@@ -27,6 +27,7 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
     """
     N=int(np.floor(L/h)) #nombre d'itérations (de descentes) pour un seul point
     surface=Surface(grid)
+    i=0 #index pour les points
     for p in grid:
         p_initial = np.array([ p[0], p[1], p[2] ])
         n=0; bon=False
@@ -62,8 +63,13 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
         p_minus1 = p_min - h*d
         p_plus1 = p_min + h*d
         p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
-        # if not (p_min[0] == p_initial[0]):
-        surface.ajouter_point( Point(p_min, min, n1, n2) )
+
+        # Enregistrer le point étudié
+        surface.ajouter_point(Point(p_initial, p_min, min, n1, n2))
+        # Enregistrer le point étudié en format vecteur
+        surface.x_i[i]=p_initial[0]; surface.y_i[i]=p_initial[1]; surface.z_i[i]=p_initial[2]
+        surface.x_f[i]=p_min[0]; surface.y_f[i]=p_min[1]; surface.z_f[i]=p_min[2];
+        i+=1
 
     return surface
 

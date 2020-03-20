@@ -6,8 +6,8 @@ class Ecran:
 
     def __init__(self, W, w):
         """
-        W = np.array([W,Wy]) # [m]
-        w = np.array([wx,wy]) # [pixel]
+        W = np.array([Wx,Wy]) # [W]=m
+        w = np.array([wx,wy]) # [w]=pixel
         """
         self.W=W
         self.w=w
