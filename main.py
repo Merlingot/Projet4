@@ -72,8 +72,8 @@ cam2.centre_x=308; cam2.centre_y=235; cam2.rayon=245
 
 #d=getApproxZDirection(cam1, cam2) #référentiel de l'écran
 d = np.array([0,0,-1])
-#t=(cam1.S+cam2.S)/2
-t = np.array([0, 0, 0])
+t=(cam1.S+cam2.S)/2
+# t = np.array([0, 0, 0])
 
 h=50e-2
 precision=1e-2
@@ -96,10 +96,16 @@ kx=int(np.floor(Lx/dk))
 ky=int(np.floor(Ly/dk))
 
 for j in np.arange(0, kx):
-    for i in np.arange(-ky, 0):
+    for i in np.arange(0, ky):
         a = o + i*dk*v3 + j*dk*v2
         grid.append(a)
 
 surf = search(d, h, l, grid, precision, cam1, cam2, ecran)
 
-show_plt(surf, cam1, cam2, t, d)
+
+# Visualisation
+L=10e-2 #Longueur flêches
+
+# show_plt(surf, cam1, cam2, t, d, L)
+
+plotte(surf, ecran, cam1, cam2, L, t, d)

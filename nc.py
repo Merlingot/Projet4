@@ -44,7 +44,6 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
                     p_min = np.array([p[0],p[1],p[2]])
             p += h*d #search ALONG d
 
-
         # # Visualisation of SGMF points
         # if cam1.U != [] and cam2.U != []:
         #     f, (ax1, ax2, ax3) = plt.subplots(1, 3)
@@ -163,14 +162,14 @@ def m1(n1, n2):
     """
     return 1 - np.abs(n1@n2)
 
-# def m2(n1, n2):
-#     """
-#     *homogene
-#     Inconsistensy of the current point p.
-#     Definition : m=n1<cross_product>n2
-#     Args:
-#         n1, n2 : np.array([x,y,z,0])"""
-#     return norm(np.cross(n1, n2))
+def m2(n1, n2):
+    """
+    *homogene
+    Inconsistensy of the current point p.
+    Definition : m=n1<cross_product>n2
+    Args:
+        n1, n2 : np.array([x,y,z,0])"""
+    return norm(np.cross(n1, n2))
 
 def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
     """
@@ -196,8 +195,6 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
 
 
 def getApproxZDirection(cam1, cam2):
-
-
 # dudo
     zE_E = np.array([0,0,-1])
     zC_C = np.array([0,0,1])
@@ -226,51 +223,6 @@ def graham(v1, v2, v3):
     return np.concatenate((e1,e2,e3), axis=0).reshape(3,3)
 
 
-
-def patate(P, cam1, cam2, n1, n2):
-
-    fig=plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.auto_scale_xyz([0, 1], [0, 1], [0, 1])
-
-    ## Set aspect -----------------------------------------
-    X=np.array([0, cam1.S[0]*1.3])
-    Y=np.array([0, cam1.S[1]*1.3])
-    Z=np.array([0, cam1.S[2]*1.3])
-    # Create cubic bounding box to simulate equal aspect ratio
-    max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
-    Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
-    Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(Y.max()+Y.min())
-    Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
-    # Comment or uncomment following both lines to test the fake bounding box:
-    for xb, yb, zb in zip(Xb, Yb, Zb):
-       ax.plot([xb], [yb], [zb], 'w')
-    ## Set aspect -----------------------------------------
-
-    C1=cam1.ecranToCam(P); c1=cam1.camToCCD(C1)
-    d1=cam1.camToEcran(c1)-P
-    ax.quiver(P[0],P[1],P[2], d1[0],d1[1],d1[2])
-
-    C2=cam2.ecranToCam(P); c2=cam2.camToCCD(C2)
-    d2=cam2.camToEcran(c2)-P
-    # ----------------------------------------------------
-    L=5e-2 #Longueur flêches
-
-    ax.quiver(P[0],P[1],P[2], d2[0],d2[1],d2[2])
-    ax.quiver(P[0],P[1],P[2], n1[0]*L,n1[1]*L,n1[2]*L, color='r')
-    ax.quiver(P[0],P[1],P[2], n2[0]*L,n2[1]*L,n2[2]*L, color='g')
-
-    dirCam1 = cam1.camToEcran(np.array([0,0,-1]))*L
-    dirCam2 = cam2.camToEcran(np.array([0,0,-1]))*L
-    ax.scatter(0,0,0)
-    ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2], marker='x')
-    ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2], marker='x')
-    ax.quiver(0,0,0,0,0,L)
-    # ax.quiver(t[0],t[1],t[2], d[0]*L,d[1]*L,d[2]*L)
-    ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])
-    ax.quiver(cam2.S[0], cam2.S[1], cam2.S[2], dirCam2[0], dirCam2[1], dirCam2[2])
-
-    plt.show()
 
 
 
