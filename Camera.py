@@ -24,37 +24,42 @@ class Camera:
         self.U = []
 
         # Intrinsèque
+        fx=K[0,0]; fy=K[1,1]
+        cu=K[0,2]; cv=K[1,2]
         self.K = K                              # Tout information
-        self.f = ( K[0,0] + K[1,1] ) / 2.       # Focale camera (moyenne de fx et fy)
-        self.c = np.array( [K[2,0], K[2,1]] )   # Centre optique du CCD [pix, pix]
-        self.s = K[1,0]                         # Skew
+        self.f = ( fx + fy ) / 2.       # Focale camera (moyenne de fx et fy)
+        self.c = np.array([cu, cv])   # Centre optique du CCD [pix, pix]
+        self.s = K[0,1]                         # Skew
         self.W = W                              # Taille du CCD en [W]=m
         self.w = w                              # Taille du CCD en [w]=pixels
 
-        self.sx = W[0]/w[0]                     #[m/pixels]
-        self.sy = W[1]/w[1]
+        self.sx = W[0]/w[0]                     # Taille d'un pixel [m/pixel]
+        self.sy = W[1]/w[1]                     # Taille d'un pixel [m/pixel]
 
         # Extrinsèque (Ecran -> Camera)
         self.R = R                              # Matrice de rotation
-        self.T = T                              # Matrice de translation
+        self.T = T                              # Matrice de translation [m]
 
-        self.M = np.block([ [R , T.reshape(3,1)] ,
+        self.cToE = np.block([ [R , T.reshape(3,1)] ,
+                [ np.zeros((1,3)).reshape(1,3) , 1]
+                ])
+        self.eToC = np.block([ [np.transpose(R) , -(np.transpose(R)@T).reshape(3,1)] ,
                 [ np.zeros((1,3)).reshape(1,3) , 1]
                 ])
 
-        self.F = ( K[0,0]*self.sx + K[1,1]*self.sy ) / 2. #Focale utile
+        self.F = ( fx*self.sx + fy*self.sy ) / 2. #Focale utile
 
-        # Position du pinhole de la caméra dans le référentiel de l'écran
+        # Position du sténopé de la caméra dans le référentiel de l'écran (même chose que self.T)
         self.S = self.camToEcran( np.array([0,0,0]) )
 
+        # Pour les masques cheap (À enlever éventuellement)
         self.centre_x=None
         self.centre_y=None
         self.rayon=None
 
         ## SGMF
         #-Importing cartography
-        sgmfXY = cv2.imread(sgmf)
-        sgmfXY = sgmfXY.astype('float64')
+        sgmfXY = cv2.imread(sgmf).astype('float64')
 
         #-Importing confidence mask
         self.mask = cv2.imread(mask).astype('int')
@@ -69,20 +74,23 @@ class Camera:
         """
         * homogene
         [px, py, pz, 1] -> [px', py', pz', 1] """
-        return self.M@P
+        return self.eToC@P
 
     def camToEcran(self, P):
-        """ [px', py', pz'] -> [px, py, pz]"""
-        Rinv = np.linalg.inv(self.R)
-        return Rinv@(P-self.T)
+        """
+        * Pas homogene
+        [px', py', pz'] -> [px', py', pz', 1] -> [px, py, pz, 1]-> [px, py, pz]"""
+        Pcam = np.array([P[0],P[1],P[2],1])
+        Pecran = self.cToE@Pcam
+        return Pecran[:3]
 
     def camToCCD(self, C):
         """
         * homogene
-        [px', py', pz', 1] -> [U,V,F,1] """
+        [px', py', pz', 1] -> [U,V,-F,1] """
         pzp=C[2]
         loic = np.block( [ [ np.eye(3) , np.zeros((3,1)).reshape(3,1) ],
-                [np.zeros((1,3)).reshape(1,3) , pzp/self.F]
+                [np.zeros((1,3)).reshape(1,3) , -pzp/self.F]
                 ])
         return -self.F/pzp*loic@C
 
@@ -90,14 +98,14 @@ class Camera:
         """
         * homogene
         Args:
-        vecSpace: np.array([U,V,F,1])
+        vecSpace: np.array([U,V,-F,1])
             Vecteur de position en m
         Returns:
             np.array([u,v,1])
             Vecteur de position en pixel
         """
         loic = np.block( [ self.K , np.zeros((3,1))] )
-        vecPix = (1/self.F)*loic@vecSpace
+        vecPix = (-1/self.F)*loic@vecSpace
         u, v = vecPix[0], vecPix[1]
 
         if u > 1 and v > 1 and u < self.sgmf.shape[0]-1 and v < self.sgmf.shape[1]-1:
@@ -114,6 +122,23 @@ class Camera:
         else:
             return None
 
+
+    def pixelToSpace(self, vecPix):
+        """
+        * homogene
+        Args:
+            np.array([u,v,1])
+            Vecteur de position en pixel
+        Returns:
+        vecSpace: np.array([U,V,-F,1])
+            Vecteur de position en m
+        """
+        Kinv = np.linalg.inv(self.K)
+        tempSpace=Kinv@(-self.F*vecPix)
+        vecSpace = np.array([tempSpace[0],tempSpace[1],tempSpace[2], 1])
+        return vecSpace
+
+
     def pixCamToEcran(self, vecPix):
 
         """
@@ -128,3 +153,15 @@ class Camera:
         vp = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
 
         return np.array([up, vp, 1])
+
+    def cacmou(self, vecPix):
+        """
+        Prend la coordonée d'un pixel de la caméra (u,v,1) [pixel] et le transforme
+        1) en coordonées dans le référentiel de la caméra (x,y,-f,1) [m]
+        2) en coordonées dans le référentiel de l'écran (X,Y,Z) [m]
+        Args:
+            vecPix : np.array([u,v,1])
+        Returns:
+            np.array([X,Y,Z])
+        """
+        return self.camToEcran(self.pixelToSpace(vecPix)[0:3])
