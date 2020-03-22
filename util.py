@@ -6,7 +6,7 @@ import plotly.figure_factory as ff
 
 
 
-def fleche(vecI, vecDir, rgb=(0,0,0), s=1/10, l=1):
+def fleche(vecI, vecDir, rgb=(0,0,0), s=1/10, l=1, name='trace'):
     """
     vecI : np.array([x,y,z])
         coordonées du point de départ de la flèche
@@ -32,27 +32,36 @@ def fleche(vecI, vecDir, rgb=(0,0,0), s=1/10, l=1):
     sizemode='absolute',
     sizeref=s,
     colorscale=[[0, color], [1, color]],
-    anchor='cm'
+    anchor='cm',
+    name=name
      )
 
     tige = go.Scatter3d(
     x =[xi,xf], y=[yi,yf], z=[zi,zf],
+    name=name,
     mode='lines',
     line=dict(
         width=5, color=color
     ) )
 
-    return cone,tige
+    return [ tige, cone ]
 
 
 def plotte(surf, ecran, cam1, cam2, L, t, d):
 
+    S=50
     # codes rgb
-    rgb_ecran=()
-    rgb_grille_i=()
-    rgb_grille_f=()
-    rgb_cam1=()
-    rgb_cam2=()
+    rgb_ecran=(255,0,0)
+    rgb_grille_i=(0,0,0)
+    rgb_grille_f=(0,0,0)
+    rgb_cam1=(0,255,0)
+    rgb_cam2=(0,0,255)
+
+    # Points de départ des flèches
+    oEcran = np.array([0,0,0])
+    oCam1 = cam1.S
+    oCam2 = cam2.S
+    oRecherche = t
 
     # Vecteurs unitaires
     dirCam1 = cam1.camToEcran(np.array([0,0,1]))
@@ -60,7 +69,7 @@ def plotte(surf, ecran, cam1, cam2, L, t, d):
     dirEcran = np.array([0,0,1])
     dirRecherche = d
 
-    # PLANS :
+    # # PLANS :
     data_ecran = go.Mesh3d(
         x = [0,ecran.W[0],0,ecran.W[0]],
         y = [0,0,ecran.W[1],ecran.W[1]],
@@ -72,7 +81,8 @@ def plotte(surf, ecran, cam1, cam2, L, t, d):
         x = surf.x_i,
         y = surf.y_i,
         z = surf.z_i,
-        color='rgb({},{},{})'.format(rgb_grille_i[0],rgb_grille_i[1],rgb_grille_i[2])
+        color='rgb({},{},{})'.format(rgb_grille_i[0],rgb_grille_i[1],rgb_grille_i[2]),
+        opacity = 0.5
         )
     # Grille finale
     data_grille_finale= go.Mesh3d(
@@ -81,25 +91,49 @@ def plotte(surf, ecran, cam1, cam2, L, t, d):
         z = surf.z_f,
         color='rgb({},{},{})'.format(rgb_grille_f[0],rgb_grille_f[1],rgb_grille_f[2])
         )
-    data = [data_ecran, data_grille_finale, data_grille_init]
+    # Plan ccd cam1
+    coin1=cam1.cacmou(np.array([0,0,1]))
+    coin2=cam1.cacmou(np.array([cam1.w[0], 0,1]))
+    coin3=cam1.cacmou(np.array([0, cam1.w[1],1]))
+    coin4=cam1.cacmou(np.array([cam1.w[0],cam1.w[1],1]))
+    ccd1 = go.Mesh3d(
+        x = [coin1[0], coin2[0], coin3[0], coin4[0] ],
+        y = [coin1[1], coin2[1], coin3[1], coin4[1] ],
+        z = [coin1[2], coin2[2], coin3[2], coin4[2] ],
+        color='rgb({},{},{})'.format(rgb_cam1[0],rgb_cam1[1],rgb_cam1[2])
+        )
+    # Plan ccd cam2
+    coin1=cam2.cacmou(np.array([0,0,1]))
+    coin2=cam2.cacmou(np.array([cam2.w[0], 0,1]))
+    coin3=cam2.cacmou(np.array([0, cam2.w[1],1]))
+    coin4=cam2.cacmou(np.array([cam2.w[0],cam2.w[1],1]))
+    ccd2 = go.Mesh3d(
+        x = [coin1[0], coin2[0], coin3[0], coin4[0] ],
+        y = [coin1[1], coin2[1], coin3[1], coin4[1] ],
+        z = [coin1[2], coin2[2], coin3[2], coin4[2] ],
+        color='rgb({},{},{})'.format(rgb_cam2[0],rgb_cam2[1],rgb_cam2[2])
+        )
+    # data = [data_ecran, data_grille_finale, data_grille_init, ccd1, ccd2]
+    data=[ccd1,ccd2]
     # FLECHES
-    # ecran
-    data.append( fleche(vecI, vecDir, rgb=(0,0,0), s=1/10, l=1)  )
-    # cam1
-    data.append( fleche(vecI, vecDir, rgb=(0,0,0), s=1/10, l=1)  )
-    # cam2
-    data.append( fleche(vecI, vecDir, rgb=(0,0,0), s=1/10, l=1)  )
-    # recherche
-    data.append( fleche(vecI, vecDir, rgb=(0,0,0), s=1/10, l=1)  )
+    ## ecran
+    # data += fleche(oEcran, dirEcran, rgb=rgb_ecran, s=1/S, l=L, name='Ecran')
+    ## cam1
+    data += fleche(oCam1, dirCam1, rgb=rgb_cam1, s=1/S, l=L, name='Camera 1')
+    ## cam2
+    data += fleche(oCam2, dirCam2, rgb=rgb_cam2, s=1/S, l=L, name='Camera 2')
+    ## recherche
+    # data += fleche(oRecherche, dirRecherche, rgb=rgb_grille_i, s=1/S, l=L, name='Direction recherche')
 
     fig = go.Figure(data)
-    fig.update_layout(scene = dict(
-                    xaxis_title='X',
-                    yaxis_title='Y',
-                    zaxis_title='Z'))
+
+    fig.update_layout(
+    scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
+    aspectmode='manual'
+    ))
 
     # fix the ratio in the top left subplot to be a cube
-    fig.update_layout(scene_aspectmode='cube')
+    fig.update_layout(showlegend=True)
     # fig.write_image("fig_{}.eps".format(stra))
     fig.show()
 
