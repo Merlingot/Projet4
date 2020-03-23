@@ -51,6 +51,7 @@ class Camera:
 
         # Position du sténopé de la caméra dans le référentiel de l'écran (même chose que self.T)
         self.S = self.camToEcran( np.array([0,0,0]) )
+        self.normale = self.R@np.array([0,0,1])
 
         # Pour les masques cheap (À enlever éventuellement)
         self.centre_x=None
@@ -84,10 +85,17 @@ class Camera:
         Pecran = self.cToE@Pcam
         return Pecran[:3]
 
+    def dirCamToEcran(self, P):
+        """
+        * Pas homogene
+        !! Transforme des directions !! """
+        return self.R@P
+
     def camToCCD(self, C):
         """
         * homogene
-        [px', py', pz', 1] -> [U,V,-F,1] """
+        [px', py', pz', 1] -> [U,V,-F,1]
+        """
         pzp=C[2]
         loic = np.block( [ [ np.eye(3) , np.zeros((3,1)).reshape(3,1) ],
                 [np.zeros((1,3)).reshape(1,3) , -pzp/self.F]
@@ -97,6 +105,8 @@ class Camera:
     def spaceToPixel(self, vecSpace):
         """
         * homogene
+        [U,V,-F,1] ->[u,v,1]
+
         Args:
         vecSpace: np.array([U,V,-F,1])
             Vecteur de position en m
@@ -107,6 +117,7 @@ class Camera:
         loic = np.block( [ self.K , np.zeros((3,1))] )
         vecPix = (-1/self.F)*loic@vecSpace
         u, v = vecPix[0], vecPix[1]
+        # return np.array([u,v,1])
 
         if u > 1 and v > 1 and u < self.sgmf.shape[0]-1 and v < self.sgmf.shape[1]-1:
 
@@ -126,11 +137,14 @@ class Camera:
     def pixelToSpace(self, vecPix):
         """
         * homogene
+        [u,v,1] -> [U,V-F,1]
+
+        Prend la coordonnée d'un pixel de la caméra (u,v,1) [pixel] et le transforme en coordonnées dans le référentiel de la caméra (U,V,-F,1) [m]
         Args:
-            np.array([u,v,1])
+            vecPix : np.array([u,v,1])
             Vecteur de position en pixel
         Returns:
-        vecSpace: np.array([U,V,-F,1])
+            vecSpace: np.array([U,V,-F,1])
             Vecteur de position en m
         """
         Kinv = np.linalg.inv(self.K)
@@ -144,6 +158,15 @@ class Camera:
         """
         * homogene
         [u,v,1] -> [u',v',1]
+
+        À partir des coordonées [u,v,1] (en pixels) d'un pixel de la caméra, donne le pixel d'écran correspondant [u',v',1] (en pixels)
+
+        Args:
+            vecPix : np.array([u,v,1])
+            Coordonnées d'un point de la caméra en pixels
+        Returns:
+            np.array([u',v',1])
+            Coordonnées d'un point de l'écran en pixels
         """
 
         uE = [int(np.floor(vecPix[0])), int(np.floor(vecPix[1]))] #entier
@@ -154,14 +177,30 @@ class Camera:
 
         return np.array([up, vp, 1])
 
-    def cacmou(self, vecPix):
+    def cacmouE(self, vecPix):
         """
-        Prend la coordonée d'un pixel de la caméra (u,v,1) [pixel] et le transforme
-        1) en coordonées dans le référentiel de la caméra (x,y,-f,1) [m]
-        2) en coordonées dans le référentiel de l'écran (X,Y,Z) [m]
+        * Pas homogène
+        [u,v,1] -> [X,Y,Z]
+
+        Prend la coordonnée d'un pixel de la caméra (u,v,1) [pixel] et le transforme
+        1) en coordonnées dans le référentiel de la caméra (U,V,-F,1) [m]
+        2) en coordonnées dans le référentiel de l'écran (X,Y,Z) [m]
         Args:
             vecPix : np.array([u,v,1])
         Returns:
             np.array([X,Y,Z])
         """
         return self.camToEcran(self.pixelToSpace(vecPix)[0:3])
+
+    def cacmouC(self, vecPix):
+        """
+        * Pas homogène
+        [u,v,1] -> [U,V,-F]
+
+        Prend la coordonnée d'un pixel de la caméra (u,v,1) [pixel] et le transforme en coordonnées dans le référentiel de la caméra (U,V,-F,1) [m]
+        Args:
+            vecPix : np.array([u,v,1])
+        Returns:
+            np.array([U,V,-F])
+        """
+        return self.pixelToSpace(vecPix)[0:3]
