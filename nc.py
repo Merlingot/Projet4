@@ -36,7 +36,6 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
         while n<N:
             n+=1
             val, n1, n2, bon = evaluatePoint(p, cam1, cam2, ecran)
-            # patate(p,cam1, cam2, n1, n2)
             V[n-1]=val
             if bon:
                 if val < min:
@@ -44,17 +43,7 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
                     p_min = np.array([p[0],p[1],p[2]])
             p += h*d #search ALONG d
 
-        # # Visualisation of SGMF points
-        # if cam1.U != [] and cam2.U != []:
-        #     f, (ax1, ax2, ax3) = plt.subplots(1, 3)
-        #     ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
-        #     for pt in cam1.U:
-        #         ax1.scatter( pt[0], pt[1], color='r')
-        #     ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
-        #     for pt in cam2.U:
-        #         ax2.scatter( pt[0], pt[1], color='r')
-        #     ax3.plot(np.arange(0,N), V, 'b')
-        #     plt.show()
+        # show_sgmf(cam1, cam2)
 
         cam1.U = []
         cam2.U = []
@@ -65,13 +54,12 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
 
         # Enregistrer le point étudié
         surface.ajouter_point(Point(p_initial, p_min, min, n1, n2))
-        # Enregistrer le point étudié en format vecteur
+        # Enregistrer le point étudié (position initiale et finale) en format vecteur
         surface.x_i[i]=p_initial[0]; surface.y_i[i]=p_initial[1]; surface.z_i[i]=p_initial[2]
         surface.x_f[i]=p_min[0]; surface.y_f[i]=p_min[1]; surface.z_f[i]=p_min[2];
         i+=1
 
     return surface
-
 
 
 def evaluatePoint(p, cam1, cam2, ecran):
@@ -139,7 +127,6 @@ def cartesienne(vec_hom):
     else:
         return vec_hom
 
-
 def normale(P,E,C):
     """
     *homogene
@@ -195,7 +182,9 @@ def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
 
 
 def getApproxZDirection(cam1, cam2):
-# dudo
+
+    """ Donne la direction approximative de la table dans le référentiel de l'écran"""
+
     zE_E = np.array([0,0,-1])
     zC_C = np.array([0,0,1])
     zC1_E = cam1.camToEcran(zC_C)
