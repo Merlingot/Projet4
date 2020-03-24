@@ -5,6 +5,10 @@ import numpy as np
 import plotly.figure_factory as ff
 
 
+O_CAM_REF_CAM = np.array([0,0,0])
+DIR_CAM_REF_CAM = np.array([0,0,1])
+
+
 def cam_refEcran(cam, rgb_cam, L, legende, S=50):
     # Points de départ des flèches
     oCam = cam.S
@@ -80,16 +84,20 @@ def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
     data=[]
     data += ecran_refEcran(ecran, rgb_ecran, L, S)
-    data += grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S)
-    data += cam_refEcran(cam1, rgb_cam1, L, 'cam1', S)
-    data += cam_refEcran(cam2, rgb_cam2, L, 'cam2', S)
+    # data += grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S)
+    data += cam_refEcran(cam1, rgb_cam1, L, 'cam1 PG', S)
+    data += cam_refEcran(cam2, rgb_cam2, L, 'cam2 AV', S)
 
     fig = go.Figure(data)
 
     fig.update_layout(
     scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
-    aspectmode='manual'
-    ))
+    aspectmode='manual',
+    camera = dict(
+    up=dict(x=0, y=0, z=-1),
+    center=dict(x=0, y=0, z=0),
+    eye=dict(x=1.25, y=1.25, z=-1.25)
+    )))
 
     set_aspect_3D_plotly(cam1, fig)
     fig.update_layout(showlegend=True)
@@ -99,11 +107,11 @@ def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
 
 
-def cam_refCam(cam, rgb_cam, L, legende, S=50):
+def cam_refCam(cam, rgb_cam, rgb_ccd, L, legende, S=50):
     # Points de départ des flèches
-    oCam = np.array([0,0,0])
+    oCam = O_CAM_REF_CAM
     # Vecteurs unitaires
-    dirCam = np.array([0,0,1])
+    dirCam = DIR_CAM_REF_CAM
     # Plan ccd cam2
     coin1=cam.cacmouC(np.array([0,0,1]))
     coin2=cam.cacmouC(np.array([cam.w[0], 0,1]))
@@ -113,23 +121,22 @@ def cam_refCam(cam, rgb_cam, L, legende, S=50):
         x = [coin1[0], coin2[0], coin3[0], coin4[0] ],
         y = [coin1[1], coin2[1], coin3[1], coin4[1] ],
         z = [coin1[2], coin2[2], coin3[2], coin4[2] ],
-        color='rgb({},{},{})'.format(rgb_cam[0],rgb_cam[1],rgb_cam[2])
+        color='rgb({},{},{})'.format(rgb_ccd[0],rgb_ccd[1],rgb_ccd[2])
         )
     data = [ccd]
     data += fleche(oCam, dirCam, rgb=rgb_cam, s=1/S, l=L, name=legende)
     return data
 
 
-def montage_refCam(cam1, cam2, L):
+def montage_refCam(cam, leg, L):
 
     S=50
     # codes rgb
-    rgb_cam1=(0,255,0)
-    rgb_cam2=(0,0,255)
+    rgb_cam=(0,255,0)
+    rgb_ccd=(255,0,0)
 
     data=[]
-    # data += cam_refCam(cam1, rgb_cam1, L, 'cam1', S)
-    data += cam_refCam(cam2, rgb_cam2, L, 'cam2', S)
+    data += cam_refCam(cam, rgb_cam, rgb_ccd, L, leg, S)
 
     fig = go.Figure(data)
 
@@ -138,7 +145,7 @@ def montage_refCam(cam1, cam2, L):
     aspectmode='manual'
     ))
 
-    set_aspect_3D_plotly(cam1, fig)
+    # set_aspect_3D_plotly(cam, fig)
     fig.update_layout(showlegend=True)
     # fig.write_image("fig_{}.eps".format(stra))
     fig.show()
@@ -199,7 +206,7 @@ def set_aspect_3D_plotly(cam, fig):
     Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
     fig.add_trace(go.Scatter3d(x=Xb,
                    y=Yb,
-                   z=Zb,
+                   z=-1*Zb,
                    mode='markers',
                     marker=dict(
                         color='rgba(255,255,255,0)',
