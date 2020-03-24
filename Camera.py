@@ -27,7 +27,7 @@ class Camera:
         fx=K[0,0]; fy=K[1,1]
         cu=K[0,2]; cv=K[1,2]
         self.K = K                              # Tout information
-        self.f = ( fx + fy ) / 2.       # Focale camera (moyenne de fx et fy)
+        self.f = ( fx + fy ) / 2.       # Focale camera [fx,fy]=pixels (moyenne de fx et fy)
         self.c = np.array([cu, cv])   # Centre optique du CCD [pix, pix]
         self.s = K[0,1]                         # Skew
         self.W = W                              # Taille du CCD en [W]=m
@@ -37,21 +37,21 @@ class Camera:
         self.sy = W[1]/w[1]                     # Taille d'un pixel [m/pixel]
 
         # Extrinsèque (Ecran -> Camera)
-        self.R = R                              # Matrice de rotation
+        self.R = R                              # Matrice de rotation [-]
         self.T = T                              # Matrice de translation [m]
 
-        self.cToE = np.block([ [R , T.reshape(3,1)] ,
+        self.eToC = np.block([ [R , T.reshape(3,1)] ,
                 [ np.zeros((1,3)).reshape(1,3) , 1]
                 ])
-        self.eToC = np.block([ [np.transpose(R) , -(np.transpose(R)@T).reshape(3,1)] ,
+        self.cToE = np.block([ [np.transpose(R) , -(np.transpose(R)@T).reshape(3,1)] ,
                 [ np.zeros((1,3)).reshape(1,3) , 1]
                 ])
 
-        self.F = ( fx*self.sx + fy*self.sy ) / 2. #Focale utile
+        self.F = ( fx*self.sx + fy*self.sy ) / 2. #Focale utile [m]
 
         # Position du sténopé de la caméra dans le référentiel de l'écran (même chose que self.T)
         self.S = self.camToEcran( np.array([0,0,0]) )
-        self.normale = self.R@np.array([0,0,1])
+        self.normale = np.transpose(self.R)@np.array([0,0,1])
 
         # Pour les masques cheap (À enlever éventuellement)
         self.centre_x=None
@@ -89,7 +89,7 @@ class Camera:
         """
         * Pas homogene
         !! Transforme des directions !! """
-        return self.R@P
+        return np.transpose(self.R)@P
 
     def camToCCD(self, C):
         """
