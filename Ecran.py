@@ -18,10 +18,10 @@ class Ecran:
         alpha_x = W[0]/w[0]; alpha_y = W[1]/w[1]  # m/pixel
 
         # Matrice de passage [u',v',1] -> [X,Y,0]
-        self.M = np.eye((3,3))
+        self.M = np.eye(3)
         self.M[0,0]=alpha_x; self.M[1,1]=alpha_y
         # Matrice de passage [X,Y,0] -> [u',v',1]
-        self.Minv = np.eye((3,3))
+        self.Minv = np.eye(3)
         self.Minv[0,0]=1/alpha_x; self.Minv[1,1]=1/alpha_y
 
     def pixelToSpace(self, vecPix):
