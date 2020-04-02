@@ -3,6 +3,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import plotly.graph_objects as go
 import numpy as np
 import plotly.figure_factory as ff
+import cycler
 
 
 O_CAM_REF_CAM = np.array([0,0,0])
@@ -56,20 +57,24 @@ def grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S=50):
     dirRecherche = d
 
     # Grille initiale
-    data_grille_init = go.Mesh3d(
+    data_grille_init = go.Scatter3d(
         x = surf.x_i,
         y = surf.y_i,
         z = surf.z_i,
-        color='rgb({},{},{})'.format(rgb_grille_i[0],rgb_grille_i[1],rgb_grille_i[2]),
-        opacity = 0.1
+        mode = 'markers',
+        marker = dict(size=9)
+        # color='rgb({},{},{})'.format(rgb_grille_i[0],rgb_grille_i[1],rgb_grille_i[2]),
+        # opacity = 0.1
         )
     # Grille finale
-    data_grille_finale= go.Mesh3d(
+    data_grille_finale= go.Scatter3d(
         x = surf.x_f,
         y = surf.y_f,
         z = surf.z_f,
-        color='rgb({},{},{})'.format(rgb_grille_f[0],rgb_grille_f[1],rgb_grille_f[2]),
-        opacity=0.2
+        mode = 'markers',
+        marker = dict(size=3)
+        # color='rgb({},{},{})'.format(rgb_grille_f[0],rgb_grille_f[1],rgb_grille_f[2]),
+        # opacity=0.2
         )
     # data = [data_grille_init, data_grille_finale]
     data =  [data_grille_finale]
@@ -89,7 +94,7 @@ def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
     data=[]
     data += ecran_refEcran(ecran, rgb_ecran, L, S)
-    data += grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S)
+    # data += grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S)
     data += cam_refEcran(cam1, rgb_cam1, L, 'cam1 PG', S)
     data += cam_refEcran(cam2, rgb_cam2, L, 'cam2 AV', S)
 
@@ -108,6 +113,74 @@ def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
     fig.update_layout(showlegend=True)
     # fig.write_image("fig_{}.eps".format(stra))
     fig.show()
+
+def allo_refEcran(surf, ecran, cam1, cam2, L, t, d):
+
+    S=50
+    # codes rgb
+    rgb_ecran=(255,0,0)
+    rgb_grille_i=(0,0,0)
+    rgb_grille_f=(0,0,0)
+    rgb_cam1=(0,255,0)
+    rgb_cam2=(0,0,255)
+
+    data=[]
+    data += ecran_refEcran(ecran, rgb_ecran, L, S)
+
+    a = [p for p in surf.points if np.linalg.norm(p.xyz-p.p_initial)!=0]
+    pp = np.random.choice(a)
+    data += point_refEcran(surf, pp,  ecran, cam1, L, S)
+    data += point_refEcran(surf, pp, ecran, cam2, L, S)
+    data += fleche(pp.xyz, pp.n1, rgb=rgb_cam1, name='n1', s=1/S, l=L)
+    data += fleche(pp.xyz, pp.n2, rgb=rgb_cam2, name='n2',  s=1/S, l=L)
+
+    data += cam_refEcran(cam1, rgb_cam1, L, 'cam1 PG', S)
+    data += cam_refEcran(cam2, rgb_cam2, L, 'cam2 AV', S)
+
+    fig = go.Figure(data)
+
+    fig.update_layout(
+    scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
+    aspectmode='manual',
+    camera = dict(
+    up=dict(x=0, y=0, z=-1),
+    center=dict(x=0, y=0, z=0),
+    eye=dict(x=1.25, y=1.25, z=-1.25)
+    )))
+
+    set_aspect_3D_plotly(cam1, fig)
+    fig.update_layout(showlegend=True)
+    # fig.write_image("fig_{}.eps".format(stra))
+    fig.show()
+
+
+def point_refEcran(surf, pp, ecran, cam, L, S):
+
+    P = np.array([pp.xyz[0], pp.xyz[1], pp.xyz[2], 1])
+    c = cam.camToCCD( cam.ecranToCam(P) )
+    u = cam.spaceToPixel(c)
+    vecPix = cam.pixCamToEcran(u)
+    E = ecran.pixelToSpace(vecPix)
+    UC = cam.camToEcran(c[:3])
+
+    cacE = go.Scatter3d(
+        x = [P[0], E[0] ],
+        y = [P[1], E[1]],
+        z = [P[2], E[2]],
+        mode = 'lines'
+        )
+    cacU = go.Scatter3d(
+        x = [P[0], UC[0] ],
+        y = [P[1], UC[1]],
+        z = [P[2], UC[2]],
+        mode = 'lines'
+        )
+    data = [cacE, cacU]
+
+    return data
+
+
+
 
 # Tous refs --------------
 
@@ -219,6 +292,29 @@ def montage_refCam(cam, leg, L):
     fig.show()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Visualisation en matplotlib --------------------------------------------------
 def show_plt(surf, cam1, cam2, t, d, L):
 
@@ -267,62 +363,21 @@ def set_aspect_3D(cam, ax):
     ## Set aspect -----------------------------------------
 
 
-def patate(P, cam1, cam2, n1, n2):
-
-    fig=plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.auto_scale_xyz([0, 1], [0, 1], [0, 1])
-
-    ## Set aspect -----------------------------------------
-    X=np.array([0, cam1.S[0]*1.3])
-    Y=np.array([0, cam1.S[1]*1.3])
-    Z=np.array([0, cam1.S[2]*1.3])
-    # Create cubic bounding box to simulate equal aspect ratio
-    max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
-    Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
-    Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(Y.max()+Y.min())
-    Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
-    # Comment or uncomment following both lines to test the fake bounding box:
-    for xb, yb, zb in zip(Xb, Yb, Zb):
-       ax.plot([xb], [yb], [zb], 'w')
-    ## Set aspect -----------------------------------------
-
-    C1=cam1.ecranToCam(P); c1=cam1.camToCCD(C1)
-    d1=cam1.camToEcran(c1)-P
-    ax.quiver(P[0],P[1],P[2], d1[0],d1[1],d1[2])
-
-    C2=cam2.ecranToCam(P); c2=cam2.camToCCD(C2)
-    d2=cam2.camToEcran(c2)-P
-    # ----------------------------------------------------
-    L=5e-2 #Longueur flêches
-
-    ax.quiver(P[0],P[1],P[2], d2[0],d2[1],d2[2])
-    ax.quiver(P[0],P[1],P[2], n1[0]*L,n1[1]*L,n1[2]*L, color='r')
-    ax.quiver(P[0],P[1],P[2], n2[0]*L,n2[1]*L,n2[2]*L, color='g')
-
-    dirCam1 = cam1.camToEcran(np.array([0,0,-1]))*L
-    dirCam2 = cam2.camToEcran(np.array([0,0,-1]))*L
-    ax.scatter(0,0,0)
-    ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2], marker='x')
-    ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2], marker='x')
-    ax.quiver(0,0,0,0,0,L)
-    # ax.quiver(t[0],t[1],t[2], d[0]*L,d[1]*L,d[2]*L)
-    ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])
-    ax.quiver(cam2.S[0], cam2.S[1], cam2.S[2], dirCam2[0], dirCam2[1], dirCam2[2])
-
-    plt.show()
-
-
-
-def show_sgmf(cam1, cam2):
+def show_sgmf(cam1, cam2, N,V,h):
     # Visualisation of SGMF points
     if cam1.U != [] and cam2.U != []:
         f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+
         ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
+
         for pt in cam1.U:
             ax1.scatter( pt[0], pt[1], color='r')
+
         ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
+
         for pt in cam2.U:
             ax2.scatter( pt[0], pt[1], color='r')
-        ax3.plot(np.arange(0,N), V, 'b')
+
+        ax3.plot(np.arange(0,N)*h, V, color='b')
+
         plt.show()

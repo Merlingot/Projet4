@@ -3,6 +3,7 @@ from Camera import Camera
 from Ecran import Ecran
 from Surface import Surface, Point
 import seaborn as sns
+from util import show_sgmf
 
 
 import numpy as np
@@ -12,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 
-def search(d, h, L, grid, precision, cam1, cam2, ecran):
+def search(surface, d, h, L, precision, cam1, cam2, ecran):
     """
     Find the position (vector p_min) and value (min) of the minimum on each point of the grid
     Args:
@@ -25,10 +26,9 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
     Return:
         Objet surface
     """
-    N=int(np.floor(L/h)) #nombre d'itérations (de descentes) pour un seul point
-    surface=Surface(grid)
-    i=0 #index pour les points
-    for p in grid:
+    N=int(np.floor(L/h)) # nombre d'itérations (de descentes) pour un seul point
+    i=0 # index pour les points
+    for p in surface.grid:
         p_initial = np.array([ p[0], p[1], p[2] ])
         n=0; bon=False
         p_min = p_initial; min = 1e10 #(infini)
@@ -43,8 +43,7 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
                     p_min = np.array([p[0],p[1],p[2]])
             p += h*d #search ALONG d
 
-        # show_sgmf(cam1, cam2)
-
+        # show_sgmf(cam1, cam2,N,V,h)
         cam1.U = []
         cam2.U = []
 
@@ -54,12 +53,9 @@ def search(d, h, L, grid, precision, cam1, cam2, ecran):
 
         # Enregistrer le point étudié
         surface.ajouter_point(Point(p_initial, p_min, min, n1, n2))
-        # Enregistrer le point étudié (position initiale et finale) en format vecteur
-        surface.x_i[i]=p_initial[0]; surface.y_i[i]=p_initial[1]; surface.z_i[i]=p_initial[2]
+        # Enregistrer la position finale du point étudié en format vecteur
         surface.x_f[i]=p_min[0]; surface.y_f[i]=p_min[1]; surface.z_f[i]=p_min[2];
         i+=1
-
-    return surface
 
 
 def evaluatePoint(p, cam1, cam2, ecran):
@@ -98,7 +94,7 @@ def normal_at(P, cam, ecran):
     # Mettre P dans le référentiel de la caméra
     C = cam.ecranToCam(P) #[px', py', pz', 1]
     # Prolonger jusqu'au CCD
-    c = cam.camToCCD(C) #[U,V,F,1]
+    c = cam.camToCCD(C) #[U,V,-F,1]
     # Mettre en pixel
     u = cam.spaceToPixel(c) #[u1,u2,1]
     if isinstance(u, np.ndarray):

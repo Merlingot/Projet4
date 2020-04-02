@@ -67,9 +67,8 @@ mask2 = "jc_menage/conf_AV.png"
 cam2 = Camera(ecran, K2, R2, T2, W2, w2, sgmf2, mask2)
 cam2.centre_x=308; cam2.centre_y=235; cam2.rayon=245
 
-
-#################################################################
-
+# #################################################################
+#
 #d=getApproxZDirection(cam1, cam2) #référentiel de l'écran
 d = np.array([0,0,-1])
 t=(cam1.S+cam2.S)/2
@@ -103,9 +102,9 @@ for j in np.arange(0, kx):
 surf = search(d, h, l, grid, precision, cam1, cam2, ecran)
 
 
-# Visualisation
+Visualisation
 L=10e-2 #Longueur flêches
 
-# show_plt(surf, cam1, cam2, t, d, L)
+show_plt(surf, cam1, cam2, t, d, L)
 
 plotte(surf, ecran, cam1, cam2, L, t, d)
