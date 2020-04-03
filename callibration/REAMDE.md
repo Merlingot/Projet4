@@ -10,6 +10,10 @@
 ----
 ##### Références : 
 
+- Documentation OpenCV, gcc et CMake:
+
+  https://docs.opencv.org/2.4/doc/tutorials/introduction/linux_gcc_cmake/linux_gcc_cmake.html
+
 - Documentation OpenCV (Camera Calibration and 3D Reconstruction) : 
 
   https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga687a1ab946686f0d85ae0363b5af1d7b
