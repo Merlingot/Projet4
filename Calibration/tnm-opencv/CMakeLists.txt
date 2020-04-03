@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( Takahashi )
+find_package( OpenCV REQUIRED )
+add_executable( Takahashi demo.cc )
+target_link_libraries( Takahashi ${OpenCV_LIBS} )
