@@ -1,4 +1,4 @@
-# Guide du code de callibration avec `OpenCV` et `Takahashi`
+# Guide du code de calibration avec `OpenCV` et `Takahashi`
 
 ### Dépendences:
 - gcc 
