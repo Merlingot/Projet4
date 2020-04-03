@@ -1,12 +1,12 @@
 # Guide du code de callibration avec `OpenCV` et `Takahashi`
 
-### Required Package:
+### Dépendences:
 - gcc 
 - CMake 3.9 or higher
 - Python 2.7 or later and Numpy 1.5 or later
 - OpenCV
 
-####  Install `OpenCV`
+####  Installer `OpenCV`
 
 Installer OpenCV avec CMake. 
 
@@ -20,7 +20,7 @@ https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.htm
 $ mkdir <tnm-opencv>
 $ cd <tnm-opencv>
 ```
-2. Télécharger les fichiers à : https://github.com/computer-vision/takahashi2012cvpr/tree/master/opencv __dans le répertoire <tnm-opencv>__
+2. Télécharger les fichiers à : https://github.com/computer-vision/takahashi2012cvpr/tree/master/opencv dans le répertoire <tnm-opencv>
 
 #### Créer un fichier Cmake 
 ```
@@ -37,7 +37,7 @@ target_link_libraries( ProjectName  ${OpenCV_LIBS} )
 ```
   `ProjectName` représente le nom donné à l'exécutable en sortie 
 
-#### Créer et écrire un fichier de callibration qui suit les instructions de Takahashi. Voici un exemple. 
+#### Créer et écrire un fichier de calibration qui suit les instructions de Takahashi. 
 ```
 $ cd <tnm-opencv>
 $ touch <calib>.py
@@ -46,7 +46,6 @@ Voici un exemple:
 ```
 import cv2
 import numpy as np
-import os
 import glob
 
 # INPUTS ----------------------------------------------------------------------
