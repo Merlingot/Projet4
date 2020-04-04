@@ -1,7 +1,6 @@
 ####################
 # Camera Allied Vision
 
-
 ### Données de Justin
 
 K11= 1.961112e+03

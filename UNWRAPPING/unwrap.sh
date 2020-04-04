@@ -29,4 +29,3 @@ python3 channelFix.py
 
 cl3ds_match -m phaseshift_matcher_AV.xml -k "cam match" -o cam_match_AV.png
 cl3ds_match -m phaseshift_matcher_PG.xml -k "cam match" -o cam_match_PG.png
-

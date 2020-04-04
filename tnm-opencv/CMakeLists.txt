@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( callibExt )
+find_package( OpenCV REQUIRED )
+add_executable( callibExt demo.cc )
+target_link_libraries( callibExt ${OpenCV_LIBS} )
