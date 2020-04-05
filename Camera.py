@@ -24,11 +24,11 @@ class Camera:
         self.U = []
 
         # Intrinsèque
-        fx=K[0,0]; fy=K[1,1]
-        cu=K[0,2]; cv=K[1,2]
+        self.fx=K[0,0]; self.fy=K[1,1]
+        self.cu=K[0,2]; self.cv=K[1,2]
         self.K = K                              # Tout information
-        self.f = ( fx + fy ) / 2.       # Focale camera [fx,fy]=pixels (moyenne de fx et fy)
-        self.c = np.array([cu, cv])   # Centre optique du CCD [pix, pix]
+        self.f = ( self.fx + self.fy ) / 2.       # Focale camera [fx,fy]=pixels (moyenne de fx et fy)
+        self.c = np.array([self.cu, self.cv])   # Centre optique du CCD [pix, pix]
         self.s = K[0,1]                         # Skew
         self.W = W                              # Taille du CCD en [W]=m
         self.w = w                              # Taille du CCD en [w]=pixels
@@ -47,7 +47,7 @@ class Camera:
                 [ np.zeros((1,3)).reshape(1,3) , 1]
                 ])
 
-        self.F = ( fx*self.sx + fy*self.sy ) / 2. #Focale utile [m]
+        self.F = ( self.fx*self.sx + self.fy*self.sy ) / 2. #Focale utile [m]
 
         # Position du sténopé de la caméra dans le référentiel de l'écran (même chose que self.T)
         self.S = self.camToEcran( np.array([0,0,0]) )
@@ -148,9 +148,11 @@ class Camera:
             vecSpace: np.array([U,V,-F,1])
             Vecteur de position en m
         """
-        Kinv = np.linalg.inv(self.K)
-        tempSpace=Kinv@(-self.F*vecPix)
-        vecSpace = np.array([tempSpace[0],tempSpace[1],tempSpace[2], 1])
+        Kinv = np.array([[1/self.fx,-self.s/(self.fx*self.fy),self.s*self.cv/(self.fx*self.fy) - self.cu/self.fx],
+                         [0,1/self.fy,-self.cv/self.fy],
+                         [0,0,self.F],
+                         [0,0,1]])
+        vecSpace = Kinv@vecPix
         return vecSpace
 
 
