@@ -1,6 +1,5 @@
 from pymba import Vimba
 
-
 def placeholder():
     pass
 
@@ -12,6 +11,7 @@ def set_continous_aquisition_mode():
         camera.arm('Continuous', placeholder)
         camera.disarm()
         camera.close()
+
 
 
 set_continous_aquisition_mode()

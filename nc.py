@@ -2,7 +2,7 @@
 from Camera import Camera
 from Ecran import Ecran
 from Surface import Surface, Point
-import seaborn as sns
+# import seaborn as sns
 from util import show_sgmf
 
 

@@ -6,6 +6,24 @@ import PyCapture2
 import numpy as np
 import matplotlib.pyplot as plt
 
+def test(name, destination=None):
+
+    # Trouver la camera
+    cam = get_camera()
+
+    # Take the image
+    cam.startCapture(display_frame)
+#    frame = take_frame(cam)
+    input('cac')
+    cam.stopCapture()
+    cam.disconnect()
+
+    # Save image
+    save_frame(frame, name, destination)
+
+
+
+
 def ext_callib(name, destination=None):
     """
     Prend X photo avec la caméra détectée et l'enregistre sous le nom <image_name_i>.png en format png dans le répertoire <destination>.
@@ -39,21 +57,6 @@ def ext_callib(name, destination=None):
             cam.stopCapture()
             print('Please enter a valid key (y/q)')
 
-
-def test(name, destination=None):
-
-    # Trouver la camera
-    cam = get_camera()
-
-    # Take the image
-    cam.startCapture(display_frame)
-#    frame = take_frame(cam)
-    input('cac')
-    cam.stopCapture()
-    cam.disconnect()
-
-    # Save image
-    save_frame(frame, name, destination)
 
 def get_camera():
     """ Trouve une camera physique et retourne son object camera """
@@ -89,7 +92,7 @@ def display_frame(frame):
     a=a.reshape(rows, cols)
     plt.imshow(a)
     plt.show()
-        
+
 
 def save_frame(frame, name, destination=None):
 
@@ -98,4 +101,4 @@ def save_frame(frame, name, destination=None):
     isSaved = newimg.save(path.encode('utf-8'), PyCapture2.IMAGE_FILE_FORMAT.PNG)
 
 
-test('name')
+# test('name')

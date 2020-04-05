@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 from skimage.io import imread, imsave
-import seaborn as sns
+# import seaborn as sns
 
 
 class Camera:

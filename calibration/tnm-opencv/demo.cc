@@ -135,7 +135,7 @@ int main() {
   // std::ofstream myfile;
   // myfile.open("dataAV.txt");
   //
-  // myfile << "\n\nAverage reprojection error by TNM : " << e << " pixels\n\n"
+  // myfile << "Allied Vision\n\nAverage reprojection error by TNM : " << e << " pixels\n\n"
   //           << "==== Parameters by TNM ====\n\n"
   //           << "R  = " << R << "\n\n"
   //           << "T  = " << T << "\n\n"
@@ -157,11 +157,11 @@ int main() {
   cv::Mat camera(3, 3, CV_64FC(1));
 
   // load input data from files
-  load("data_PG/input1.txt", input[0]);
-  load("data_PG/input2.txt", input[1]);
-  load("data_PG/input3.txt", input[2]);
-  load("data_PG/model.txt", model);
-  load("data_PG/camera.txt", camera);
+  load("../data_PG/input1.txt", input[0]);
+  load("../data_PG/input2.txt", input[1]);
+  load("../data_PG/input3.txt", input[2]);
+  load("../data_PG/model.txt", model);
+  load("../data_PG/camera.txt", camera);
 
   // calibration
   cv::Mat R, T, n, d;
@@ -172,9 +172,9 @@ int main() {
 
   // output
   std::ofstream myfile;
-  myfile.open("dataPG.txt");
+  myfile.open("../dataPG.txt");
 
-  myfile << "\n\nAverage reprojection error by TNM : " << e << " pixels\n\n"
+  myfile << "Point Grey\n\nAverage reprojection error by TNM : " << e << " pixels\n\n"
             << "==== Parameters by TNM ====\n\n"
             << "R  = " << R << "\n\n"
             << "T  = " << T << "\n\n"
