@@ -94,7 +94,7 @@ def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
     data=[]
     data += ecran_refEcran(ecran, rgb_ecran, L, S)
-    # data += grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S)
+    data += grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S)
     data += cam_refEcran(cam1, rgb_cam1, L, 'cam1 PG', S)
     data += cam_refEcran(cam2, rgb_cam2, L, 'cam2 AV', S)
 

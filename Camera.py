@@ -53,11 +53,6 @@ class Camera:
         self.S = self.camToEcran( np.array([0,0,0]) )
         self.normale = np.transpose(self.R)@np.array([0,0,1])
 
-        # Pour les masques cheap (À enlever éventuellement)
-        self.centre_x=None
-        self.centre_y=None
-        self.rayon=None
-
         ## SGMF
         #-Importing cartography
         sgmfXY = cv2.imread(sgmf).astype('float64')
@@ -117,20 +112,15 @@ class Camera:
         loic = np.block( [ self.K , np.zeros((3,1))] )
         vecPix = (-1/self.F)*loic@vecSpace
         u, v = vecPix[0], vecPix[1]
-        # return np.array([u,v,1])
 
         if u > 1 and v > 1 and u < self.sgmf.shape[0]-1 and v < self.sgmf.shape[1]-1:
+            return np.array([u,v,1])
 
-            if (self.mask[int(u),int(v),2] > 100):
-               self.U.append(np.array([u,v]))
-               return np.array([u,v,1])
-            # if ( (u-self.centre_x)**2 + (v-self.centre_y)**2 < self.rayon**2 ):
-            #     if np.abs( v - self.centre_y ) < np.sqrt(2)/2*self.rayon:
-            #         self.U.append(np.array([u,v]))
-            #         return np.array([u,v,1])
-            else:
-                # return np.array([0,0])
-                return None
+            # if (self.mask[int(u),int(v),2] > 100):
+               # self.U.append(np.array([u,v]))
+               # return np.array([u,v,1])
+            # else:
+                # return None
         else:
             return None
 
@@ -152,7 +142,7 @@ class Camera:
                          [0,1/self.fy,-self.cv/self.fy],
                          [0,0,self.F],
                          [0,0,1]])
-        vecSpace = Kinv@vecPix
+        vecSpace = -self.F*Kinv@vecPix
         return vecSpace
 
 

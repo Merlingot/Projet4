@@ -7,17 +7,14 @@ createDir () {
 
 main () {
 
-  # sh cleanFolder
-  # cd tnm-opencv
-  # createDir "data_AV"
-  # createDir "data_PG"
+  python calibration.py
 
-  # python calibration.py
+  cd build
 
-  cmake .
+  cmake ../tnm-opencv
   make
-  ./callibExt
-
+  ./calibexeAV
+  ./calibexePG
 }
 
 main

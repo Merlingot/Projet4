@@ -12,6 +12,7 @@ NB_CORNER_HEIGHT=4
 nb_pix = 48 # Largeur d'un carré en pixel
 l_pix = 0.277e-3 # Largeur d'un pixel
 squareSize = nb_pix*l_pix
+FLIP=0 # flip par rapport à y
 
 
 def takahashi(PATH, NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, cam):
@@ -24,10 +25,24 @@ def takahashi(PATH, NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, cam):
         NB_CORNER_HEIGHT : number of internal corners in the up/down direction
         squareSize : size of chessboard square in meter
     """
+    CHECKERBOARD = (NB_CORNER_HEIGHT, NB_CORNER_WIDTH)
+    # termination criteria
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
     fnames = glob.glob(PATH)
+    # prepare object points (corner coordinates)
+    objp = np.zeros((NB_CORNER_WIDTH*NB_CORNER_HEIGHT,3), np.float32)
+    # objp[:,:2] = np.mgrid[0:NB_CORNER_HEIGHT,0:NB_CORNER_WIDTH].T.reshape(-1,2)
+    k=0
+    for i in range(NB_CORNER_WIDTH):
+        for j in range(NB_CORNER_HEIGHT):
+            objp[k] = [i,NB_CORNER_HEIGHT-1-j,0]
+            k+=1
+
+    objp = objp*squareSize
+
     if len(fnames) > 0:
         # Intrinsic parameters
-        mtx, dist = intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, fnames)
+        mtx, dist = intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, CHECKERBOARD, criteria, objp, fnames)
         # Write parameter to file
         r=open("./data_{}/camera.txt".format(cam),"w+")
         for row in mtx :
@@ -39,9 +54,9 @@ def takahashi(PATH, NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, cam):
         j=1
         errs =[]; good_images=[];
         for fname in fnames:
-            img = cv.imread(fname)
+            img = cv.imread(fname); img = cv.flip(img, FLIP)
             dst = undistort(mtx, dist, img)
-            ret, objpoints, imgpoints, err = find_corners(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, dst, mtx, dist)
+            ret, objpoints, imgpoints, err = find_corners(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, CHECKERBOARD, criteria, objp, dst, mtx, dist)
             # Write corner image coordinates for this image
             if ret == True :
                 errs.append(err)
@@ -65,7 +80,7 @@ def takahashi(PATH, NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, cam):
         print('No images found')
 
 
-def intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, fnames):
+def intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, CHECKERBOARD, criteria, objp, fnames):
     """
     Find the intrinsic calibration parameters (camera matrix and distortion coefficient) of one camera
     Args:
@@ -77,20 +92,12 @@ def intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, fnames):
         mtx : camera matrix (K)
         dist : distortion coefficient
     """
-    CHECKERBOARD = (NB_CORNER_HEIGHT, NB_CORNER_WIDTH)
-    # termination criteria
-    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    # prepare object points (corner coordinates)
-    objp = np.zeros((NB_CORNER_WIDTH*NB_CORNER_HEIGHT,3), np.float32)
-    objp[:,:2] = np.mgrid[0:NB_CORNER_HEIGHT,0:NB_CORNER_WIDTH].T.reshape(-1,2)
-    objp = objp*squareSize
     # Arrays to store object points and image points from all the images.
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
 
     for fname in fnames:
-        img = cv.imread(fname)
-        img = cv.flip(img, -1)
+        img = cv.imread(fname); img = cv.flip(img, FLIP)
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         # Find the chess board corners
         ret, corners = cv.findChessboardCorners(gray, CHECKERBOARD, None)
@@ -98,15 +105,32 @@ def intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, fnames):
         if ret == True:
             objpoints.append(objp)
             corners2 = cv.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
-            imgpoints.append(corners)
+            imgpoints.append(corners2)
             # Draw and display the corners ----------------------------
-            # cv.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
-            # cv.imshow('img', img)
-            # cv.waitKey(0)
-    # cv.destroyAllWindows()
+            cv.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
+            cv.imshow('img', img)
+            cv.waitKey(0)
+    cv.destroyAllWindows()
     # ----------------------------
-
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+    # Montrer axes ----------------------------------
+    axis = np.float32([[3,0,0], [0,3,0], [0,0,3]]).reshape(-1,3)*l_pix*nb_pix
+    for fname in fnames:
+        img = cv.imread(fname); img = cv.flip(img, FLIP)
+        gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+        ret, corners = cv.findChessboardCorners(gray, CHECKERBOARD,None)
+        if ret == True:
+            corners2 = cv.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+            # Find the rotation and translation vectors.
+            ret, rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
+            # project 3D points to image plane
+            imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
+            img = draw(img,corners2,imgpts)
+            cv.imshow('img',img)
+            cv.waitKey(0)
+    cv.destroyAllWindows()
+
     return mtx, dist
 
 def undistort(mtx, dist, img):
@@ -126,7 +150,7 @@ def reprojection_err(objp, corners2, mtx, dist, rvecs, tvecs):
     error = cv.norm(corners2, imgpoints2, cv.NORM_L2)/len(imgpoints2)
     return error
 
-def find_corners(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, dst, mtx, dist):
+def find_corners(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, CHECKERBOARD, criteria, objp, dst, mtx, dist):
     """
     Find corners coordinates in one (undistorted) image
     Args:
@@ -139,14 +163,6 @@ def find_corners(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, dst, mtx, dist):
         imgpoints : list of chessboardcorners in image coordinates
         objpoints : list of chessboardcorners in world coordinates
     """
-    CHECKERBOARD = (NB_CORNER_HEIGHT, NB_CORNER_WIDTH)
-    # termination criteria
-    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    # prepare object points (corner coordinates)
-    objp = np.zeros((NB_CORNER_WIDTH*NB_CORNER_HEIGHT,3), np.float32)
-    objp[:,:2] = np.mgrid[0:NB_CORNER_HEIGHT,0:NB_CORNER_WIDTH].T.reshape(-1,2)
-    objp = objp*squareSize
-
     gray = cv.cvtColor(dst, cv.COLOR_BGR2GRAY)
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(gray, CHECKERBOARD, None)
@@ -158,6 +174,14 @@ def find_corners(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, dst, mtx, dist):
         return ret, objp, corners2, err
     else:
         return ret, objp, None, None
+
+
+def draw(img, corners, imgpts):
+    corner = tuple(corners[3].ravel()) #(0,0,0)
+    img = cv.line(img, corner, tuple(imgpts[0].ravel()), (255,255,0), 5) #X (turquoise)
+    img = cv.line(img, corner, tuple(imgpts[1].ravel()), (0,255,0), 5) #Y
+    img = cv.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 5) #Z
+    return img
 
 
 # Code
