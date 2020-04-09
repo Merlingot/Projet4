@@ -12,6 +12,7 @@ class Ecran:
         """
         self.W=W
         self.w=w
+        self.c=c
 
         # Facteur de conversion
         alpha_x = W[0]/w[0]; alpha_y = W[1]/w[1]  # m/pixel

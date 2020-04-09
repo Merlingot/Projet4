@@ -11,9 +11,9 @@ DIR_CAM_REF_CAM = np.array([0,0,1])
 
 def cam_refEcran(cam, rgb_cam, L, legende, S=50):
     # Points de départ des flèches
-    oCam = cam.S
+    oCam = cam.S[:3]
     # Vecteurs unitaires
-    dirCam = cam.normale
+    dirCam = cam.normale[:3]
     # Plan ccd cam2
     coin1=cam.cacmouE(np.array([0,0,1]))
     coin2=cam.cacmouE(np.array([cam.w[0], 0,1]))
@@ -127,12 +127,12 @@ def allo_refEcran(surf, ecran, cam1, cam2, L, t, d):
     data=[]
     data += ecran_refEcran(ecran, rgb_ecran, L, S)
 
-    a = [p for p in surf.points if np.linalg.norm(p.xyz-p.p_initial)!=0]
+    a = [p for p in surf.points if np.linalg.norm(p.pmin-p.p_initial)!=0]
     pp = np.random.choice(a)
     data += point_refEcran(surf, pp,  ecran, cam1, L, S)
     data += point_refEcran(surf, pp, ecran, cam2, L, S)
-    data += fleche(pp.xyz, pp.n1, rgb=rgb_cam1, name='n1', s=1/S, l=L)
-    data += fleche(pp.xyz, pp.n2, rgb=rgb_cam2, name='n2',  s=1/S, l=L)
+    data += fleche(pp.pmin, pp.n1, rgb=rgb_cam1, name='n1', s=1/S, l=L)
+    data += fleche(pp.pmin, pp.n2, rgb=rgb_cam2, name='n2',  s=1/S, l=L)
 
     data += cam_refEcran(cam1, rgb_cam1, L, 'cam1 PG', S)
     data += cam_refEcran(cam2, rgb_cam2, L, 'cam2 AV', S)
@@ -156,7 +156,7 @@ def allo_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
 def point_refEcran(surf, pp, ecran, cam, L, S):
 
-    P = np.array([pp.xyz[0], pp.xyz[1], pp.xyz[2], 1])
+    P = np.array([pp.pmin[0], pp.pmin[1], pp.pmin[2], 1])
     c = cam.camToCCD( cam.ecranToCam(P) )
     u = cam.spaceToPixel(c)
     vecPix = cam.pixCamToEcran(u)
@@ -178,6 +178,52 @@ def point_refEcran(surf, pp, ecran, cam, L, S):
     data = [cacE, cacU]
 
     return data
+
+
+
+# CAMERA ---------
+def cam_refCam(cam, rgb_cam, rgb_ccd, L, legende, S=50):
+    # Points de départ des flèches
+    oCam = O_CAM_REF_CAM
+    # Vecteurs unitaires
+    dirCam = DIR_CAM_REF_CAM
+    # Plan ccd cam2
+    coin1=cam.cacmouC(np.array([0,0,1]))
+    coin2=cam.cacmouC(np.array([cam.w[0], 0,1]))
+    coin3=cam.cacmouC(np.array([0, cam.w[1],1]))
+    coin4=cam.cacmouC(np.array([cam.w[0],cam.w[1],1]))
+    ccd = go.Mesh3d(
+        x = [coin1[0], coin2[0], coin3[0], coin4[0] ],
+        y = [coin1[1], coin2[1], coin3[1], coin4[1] ],
+        z = [coin1[2], coin2[2], coin3[2], coin4[2] ],
+        color='rgb({},{},{})'.format(rgb_ccd[0],rgb_ccd[1],rgb_ccd[2])
+        )
+    data = [ccd]
+    data += fleche(oCam, dirCam, rgb=rgb_cam, s=1/S, l=L, name=legende)
+    return data
+
+
+def montage_refCam(cam, leg, L):
+
+    S=50
+    # codes rgb
+    rgb_cam=(0,255,0)
+    rgb_ccd=(255,0,0)
+
+    data=[]
+    data += cam_refCam(cam, rgb_cam, rgb_ccd, L, leg, S)
+
+    fig = go.Figure(data)
+
+    fig.update_layout(
+    scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
+    aspectmode='manual'
+    ))
+
+    # set_aspect_3D_plotly(cam, fig)
+    fig.update_layout(showlegend=True)
+    # fig.write_image("fig_{}.eps".format(stra))
+    fig.show()
 
 
 
@@ -247,66 +293,6 @@ def set_aspect_3D_plotly(cam, fig):
                     )))
 
 
-# CAMERA ---------
-def cam_refCam(cam, rgb_cam, rgb_ccd, L, legende, S=50):
-    # Points de départ des flèches
-    oCam = O_CAM_REF_CAM
-    # Vecteurs unitaires
-    dirCam = DIR_CAM_REF_CAM
-    # Plan ccd cam2
-    coin1=cam.cacmouC(np.array([0,0,1]))
-    coin2=cam.cacmouC(np.array([cam.w[0], 0,1]))
-    coin3=cam.cacmouC(np.array([0, cam.w[1],1]))
-    coin4=cam.cacmouC(np.array([cam.w[0],cam.w[1],1]))
-    ccd = go.Mesh3d(
-        x = [coin1[0], coin2[0], coin3[0], coin4[0] ],
-        y = [coin1[1], coin2[1], coin3[1], coin4[1] ],
-        z = [coin1[2], coin2[2], coin3[2], coin4[2] ],
-        color='rgb({},{},{})'.format(rgb_ccd[0],rgb_ccd[1],rgb_ccd[2])
-        )
-    data = [ccd]
-    data += fleche(oCam, dirCam, rgb=rgb_cam, s=1/S, l=L, name=legende)
-    return data
-
-
-def montage_refCam(cam, leg, L):
-
-    S=50
-    # codes rgb
-    rgb_cam=(0,255,0)
-    rgb_ccd=(255,0,0)
-
-    data=[]
-    data += cam_refCam(cam, rgb_cam, rgb_ccd, L, leg, S)
-
-    fig = go.Figure(data)
-
-    fig.update_layout(
-    scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
-    aspectmode='manual'
-    ))
-
-    # set_aspect_3D_plotly(cam, fig)
-    fig.update_layout(showlegend=True)
-    # fig.write_image("fig_{}.eps".format(stra))
-    fig.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -316,36 +302,6 @@ def montage_refCam(cam, leg, L):
 
 
 # Visualisation en matplotlib --------------------------------------------------
-def show_plt(surf, cam1, cam2, t, d, L):
-
-    fig=plt.figure()
-    ax = Axes3D(fig, azim=-32, elev=1)
-    ax.auto_scale_xyz([0, 1], [0, 1], [0, 1])
-    set_aspect_3D(cam1, ax)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
-
-    ax.scatter( surf.x_f, surf.y_f, surf.z_f, marker='.', color='r')
-
-    dirCam1 = cam1.camToEcran(np.array([0,0,1]))*L
-    dirCam2 = cam2.camToEcran(np.array([0,0,1]))*L
-
-    ax.scatter(0,0,0)
-    ax.quiver(0,0,0,0,0,-L)
-
-    ax.scatter(cam1.S[0], cam1.S[1], cam1.S[2], marker='x',color='blue')
-    ax.quiver(cam1.S[0], cam1.S[1], cam1.S[2], dirCam1[0], dirCam1[1], dirCam1[2])
-
-    ax.scatter(cam2.S[0], cam2.S[1], cam2.S[2], marker='x')
-    ax.quiver(cam2.S[0], cam2.S[1], cam2.S[2], dirCam2[0], dirCam2[1], dirCam2[2])
-
-    ax.quiver(t[0],t[1],t[2], d[0]*L, d[1]*L, d[2]*L)
-
-    plt.show()
-
-
-
 
 def set_aspect_3D(cam, ax):
     ## Set aspect -----------------------------------------
@@ -363,7 +319,7 @@ def set_aspect_3D(cam, ax):
     ## Set aspect -----------------------------------------
 
 
-def show_sgmf(cam1, cam2, N,V,h):
+def show_sgmf(cam1, cam2, N,V, h):
     # Visualisation of SGMF points
     if cam1.U != [] and cam2.U != []:
         f, (ax1, ax2, ax3) = plt.subplots(1, 3)

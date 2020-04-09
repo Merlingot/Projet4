@@ -4,7 +4,7 @@ class Point:
 
     def __init__(self, p_initial, pmin, min, n1, n2):
         self.p_initial=p_initial
-        self.xyz=pmin
+        self.pmin=pmin
         self.inconsistensy=min
         self.n1=n1
         self.n2=n2
@@ -31,7 +31,6 @@ class Surface:
             print('Erreur nombre de points sur la surface')
 
     def enr_points_initiaux(self):
-
         i=0
         for p in self.grid:
             p_initial = np.array([ p[0], p[1], p[2] ])
