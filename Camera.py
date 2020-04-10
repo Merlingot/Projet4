@@ -53,8 +53,8 @@ class Camera:
         self.Khom = np.block( [ self.K , np.zeros((3,1))] )
         self.Kinv = np.array([[1/self.fx,-self.s/(self.fx*self.fy),self.s*self.cv/(self.fx*self.fy) - self.cu/self.fx],
                          [0,1/self.fy,-self.cv/self.fy],
-                         [0,0,self.F],
-                         [0,0,1]])
+                         [0,0,1],
+                         [0,0,-1/self.F]])
 
         # Position du sténopé de la caméra dans le référentiel de l'écran
         self.S = self.camToEcran( np.array( [0,0,0,1]) )
@@ -83,7 +83,7 @@ class Camera:
     def camToEcran(self, P):
         """
         * homogene
-        px', py', pz', -] -> [px, py, pz, -]"""
+        [px', py', pz', -] -> [px, py, pz, -]"""
         return self.cToE@P
 
     def camToCCD(self, C):
@@ -113,13 +113,9 @@ class Camera:
         u, v = vecPix[0], vecPix[1]
 
         if u > 1 and v > 1 and u < self.sgmf.shape[0]-1 and v < self.sgmf.shape[1]-1:
-            return np.array([u,v,1])
-
             # if (self.mask[int(u),int(v),2] > 100):
                # self.U.append(np.array([u,v]))
-               # return np.array([u,v,1])
-            # else:
-                # return None
+            return np.array([u,v,1])
         else:
             return None
 
@@ -177,7 +173,7 @@ class Camera:
         Returns:
             np.array([X,Y,Z,1])
         """
-        return self.camToEcran(self.pixelToSpace(vecPix))
+        return self.camToEcran( self.pixelToSpace(vecPix) )
 
     def cacmouC(self, vecPix):
         """

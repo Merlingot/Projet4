@@ -13,49 +13,45 @@ import matplotlib.pyplot as plt
 
 
 
-def search(surface, d, h, L, precision, cam1, cam2, ecran):
+def search(surface, d, h, L, cam1, cam2, ecran):
     """
     Find the position (vector p_min) and value (min) of the minimum on each point of the grid
     Args:
         d (np.array([x,y,z])) : direction de recherche (vecteur unitaire)
         h (float) : incrément de recherche
         grid (list[np.array([x,y,z])]) :
-        precision (float) :
         cam1, cam2 : caméra
         ecran : ecran
     Return:
         Objet surface
     """
     N=int(np.floor(L/h)) # nombre d'itérations (de descentes) pour un seul point
-    i=0 # index pour les points
-    for p in surface.grid:
+    for p in surface.grid: # Loop sur les points
+        cam1.U.clear(); cam2.U.clear()
+        point = Point(N)
+        n=0; index_min=None;
         p_initial = np.array([ p[0], p[1], p[2] ])
-        n=0; bon=False
-        p_min = p_initial; min = 1e10 #(infini)
-        V = np.zeros(N)
-        while n<N:
-            n+=1
-            val, n1, n2, bon = evaluatePoint(p, cam1, cam2, ecran)
-            V[n-1]=val
-            if bon:
-                if val < min:
-                    min = val
+        p_min = np.array([ p[0], p[1], p[2] ]); val_min = 1e10 #(infini)
+        while n<N: # Loop sur la descente du point
+            val, n1, n2, b = evaluatePoint(p, cam1, cam2, ecran)
+            point.vecV[n]=val; point.vecP[n]=p; point.vecB[n]=b; point.vecN1[n]=n1; point.vecN2[n]=n2
+            if b:
+                if val < val_min:
+                    index_min = n
+                    val_min = val
                     p_min = np.array([p[0],p[1],p[2]])
-            p += h*d #search ALONG d
-
-        # show_sgmf(cam1, cam2,N,V,h)
-        cam1.U = []
-        cam2.U = []
-
-        p_minus1 = p_min - h*d
-        p_plus1 = p_min + h*d
-        p_min, min, n1, n2 = ternarySearch(precision, p_minus1, p_plus1, cam1, cam2, ecran)
-
+            p += h*d
+            n+=1
+        # Enregistrer les valeurs minimales du point
+        point.pmin=p_min; point.valmin=val_min; point.indexmin=index_min
+        # Arranger les vecteur pour enlever les NaN:
+        point.vecV=point.vecV[point.vecB]
+        point.vecP=point.vecP[point.vecB]
+        point.vecN1 = point.vecN1[point.vecB];
+        point.vecN2 = point.vecN2[point.vecB];
         # Enregistrer le point étudié
-        surface.ajouter_point(Point(p_initial, p_min, min, n1, n2))
-        # Enregistrer la position finale du point étudié en format vecteur
-        surface.x_f[i]=p_min[0]; surface.y_f[i]=p_min[1]; surface.z_f[i]=p_min[2];
-        i+=1
+        surface.ajouter_point(point)
+
 
 
 def evaluatePoint(p, cam1, cam2, ecran):
@@ -72,7 +68,7 @@ def evaluatePoint(p, cam1, cam2, ecran):
     n1 = normal_at(P, cam1, ecran); n2 = normal_at(P, cam2, ecran)
 
     if isinstance(n1, np.ndarray) and isinstance(n2, np.ndarray) :
-        return m1(n1, n2), cartesienne(n1), cartesienne(n2), True #True:existe sur les caméras
+        return m1(n1, n2), cartesienne(n1), cartesienne(n2), True
     else:
         return None, None, None, False
 
@@ -90,7 +86,6 @@ def normal_at(P, cam, ecran):
     returns
         n = np.array([x,y,z,0]) (unit vector)
     """
-
     # Mettre P dans le référentiel de la caméra
     C = cam.ecranToCam(P) #[px', py', pz', 1]
     # Prolonger jusqu'au CCD
@@ -101,13 +96,10 @@ def normal_at(P, cam, ecran):
         # Transformer un pixel sur la caméra à un pixel sur l'écran (SGMF)
         vecPix = cam.pixCamToEcran(u) #[v1,v2,1]
         # Transformer de pixel au référentiel de l'écran
-        E = ecran.pixelToSpace(vecPix) #[x,y,0] # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
-        return normale(P, homogene(E), homogene(cam.S))
+        E = ecran.pixelToSpace(vecPix) #[x,y,0,1] # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
+        return normale(P, E, cam.S)
     else:
         return None
-
-
-# - Fonctions qui handles pas les None ------------------------------
 
 def homogene(vec):
     """ np.array([x,y,z]) -> np.array([x,y,z,1])   """
@@ -116,10 +108,10 @@ def homogene(vec):
     else:
         return vec
 
-def cartesienne(vec_hom):
-    """ np.array([x,y,z,1]) - > np.array([x,y,z]) """
-    if vec_hom.size == 4:
-        return np.array([vec_hom[0], vec_hom[1], vec_hom[2]])
+def cartesienne(vec):
+    """ np.array([x,y,z,-]) - > np.array([x,y,z]) """
+    if vec.size == 4:
+        return np.array([vec[0], vec[1], vec[2]])
     else:
         return vec_hom
 
@@ -127,7 +119,7 @@ def normale(P,E,C):
     """
     *homogene
     Calculer une normale avec 3 points dans le même référentiel
-    P:point E:écran C:caméra (x,y,z,1)
+    P:point E:écran C:caméra np.array([x,y,z,1])
     """
     PE = E-P; PC = C-P
     pe = PE/np.linalg.norm(PE); pc = PC/np.linalg.norm(PC)
@@ -154,29 +146,8 @@ def m2(n1, n2):
         n1, n2 : np.array([x,y,z,0])"""
     return norm(np.cross(n1, n2))
 
-def ternarySearch(absolutePrecision, lower, upper, cam1, cam2, ecran):
-    """
-    Find the maximum in the interval [<lower>, <upper>] with a precision of <absolutePrecision>.
-    Recursive function.
-    Args:
-        absolutePrecision : float
-            Precision of the search interval
-        lower : np.array([x,y,z])
-            Current lower bound of search domain
-        upper : np.array([x,y,z])
-            Current upper bound of search domain
-        cam1, cam2 : Caméra
-            Measurements nb. 1 and 2
-    Return:
-        p_min : np.array([x,y,z])
-        min :
-    """
-    p_min = (lower + upper)/2
-    min, n1, n2, _ = evaluatePoint(p_min, cam1, cam2, ecran)
-    return p_min, min, n1, n2
 
-
-
+# Autre fonctions ------------------
 def getApproxZDirection(cam1, cam2):
 
     """ Donne la direction approximative de la table dans le référentiel de l'écran"""

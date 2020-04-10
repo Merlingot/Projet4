@@ -72,7 +72,7 @@ def grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S=50):
         y = surf.y_f,
         z = surf.z_f,
         mode = 'markers',
-        marker = dict(size=3)
+        marker = dict(size=1)
         # color='rgb({},{},{})'.format(rgb_grille_f[0],rgb_grille_f[1],rgb_grille_f[2]),
         # opacity=0.2
         )

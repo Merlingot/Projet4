@@ -1,16 +1,18 @@
 import numpy as np
+import scipy.signal as sci
 
 class Point:
 
-    def __init__(self, p_initial, pmin, min, n1, n2):
-        self.p_initial=p_initial
-        self.pmin=pmin
-        self.inconsistensy=min
-        self.n1=n1
-        self.n2=n2
-        self.pix_ccd=None
-        self.pix_ecran=None
-        self.sgmf_confirmed=False
+    def __init__(self, N):
+        self.pfinal=None
+        self.pmin=None
+        self.valmin=None
+        self.indexmin=None
+        self.vecP=np.zeros((N,3))
+        self.vecV=np.zeros(N)
+        self.vecB=np.zeros(N, dtype=bool)
+        self.vecN1=np.zeros((N,3))
+        self.vecN2=np.zeros((N,3))
 
 
 class Surface:
@@ -18,22 +20,36 @@ class Surface:
     def __init__(self, grid):
         self.grid=grid
         self.points=[]
-        self.longueur=len(grid) #Nombre de point dans la grille
+        self.good_points=[]
+        self.nb_points=len(grid) #Nombre de point dans la grille
         # Points initiaux de la grille
-        self.x_i=np.zeros(self.longueur); self.y_i=np.zeros(self.longueur); self.z_i=np.zeros(self.longueur)
+        self.x_i=None; self.y_i=None; self.z_i=None
         # Points finaux de la grille
-        self.x_f=np.zeros(self.longueur); self.y_f=np.zeros(self.longueur); self.z_f=np.zeros(self.longueur)
+        self.x_f=None; self.y_f=None; self.z_f=None
+
         self.enr_points_initiaux()
 
     def ajouter_point(self, point):
         self.points.append(point)
-        if len(self.points) > self.longueur :
+        if len(self.points) > self.nb_points :
             print('Erreur nombre de points sur la surface')
 
     def enr_points_initiaux(self):
-        i=0
-        for p in self.grid:
-            p_initial = np.array([ p[0], p[1], p[2] ])
-            # Enregistrer le point étudié (position initiale et finale) en format vecteur
-            self.x_i[i]=p_initial[0]; self.y_i[i]=p_initial[1]; self.z_i[i]=p_initial[2]
-            i+=1
+        n=len(self.grid)
+        self.x_i,self.y_i,self.z_i=np.zeros(n),np.zeros(n),np.zeros(n)
+        for i in range(len(self.grid)):
+            p=self.grid[i]
+            self.x_i[i]=p[0]; self.y_i[i]=p[1]; self.z_i[i]=p[2]
+
+    def enr_points_finaux(self, points):
+        n=len(points)
+        self.x_f,self.y_f,self.z_f=np.zeros(n),np.zeros(n),np.zeros(n)
+        for i in range(n):
+            p=points[i]
+            self.x_f[i]=p.pfinal[0]; self.y_f[i]=p.pfinal[1]; self.z_f[i]=p.pfinal[2]
+
+    def get_good_points(self, CRITERE):
+        self.good_points.clear()
+        for p in self.points:
+            if p.indexmin and (p.valmin < CRITERE):
+                self.good_points.append(p)
