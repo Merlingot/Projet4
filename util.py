@@ -114,6 +114,42 @@ def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
     # fig.write_image("fig_{}.eps".format(stra))
     fig.show()
 
+
+
+def grilles_refEcran(surf, ecran, cam1, cam2, L, t, d):
+
+    S=50
+    # Points de départ des flèches
+    oRecherche = t
+    # Vecteurs unitaires
+    dirRecherche = d
+
+    # Grille finale
+    data_grille_finale= go.Mesh3d(
+        x = surf.x_f,
+        y = surf.y_f,
+        z = surf.z_f,
+        opacity=0.2
+        )
+    data =  [data_grille_finale]
+
+    fig = go.Figure(data)
+
+    fig.update_layout(
+    scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
+    aspectmode='manual',
+    camera = dict(
+    up=dict(x=0, y=0, z=-1),
+    center=dict(x=0, y=0, z=0),
+    eye=dict(x=1.25, y=1.25, z=-1.25)
+    )))
+
+    set_aspect_3D_plotly(cam1, fig)
+    fig.update_layout(showlegend=True)
+    # fig.write_image("fig_{}.eps".format(stra))
+    fig.show()
+
+
 def allo_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
     S=50

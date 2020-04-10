@@ -1,5 +1,10 @@
 #!/bin/bash
-
+createDir () {
+   local $1
+   if [ ! -d "$1" ]; then
+       mkdir "$1"
+   fi
+}
 
 cleanDir () {
    local $1
@@ -23,21 +28,3 @@ cleanFile () {
       rm "$1"
   fi
 }
-
-main () {
-
-pwd
-
-echo "Clean directory (y/n)? "
-read answer
-if [ "$answer" != "${answer#[Yy]}" ] ;then
-    echo Yes
-    cleanDir "build"
-    cleanDir "data_AV"
-    cleanDir "data_PG"
-else
-    echo No
-fi
-}
-
-main

@@ -1,10 +1,3 @@
-createDir () {
-   local $1
-   if [ ! -d "$1" ]; then
-       mkdir "$1"
-   fi
-}
-
 main () {
 
   python calibration.py

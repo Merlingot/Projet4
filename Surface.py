@@ -42,6 +42,7 @@ class Surface:
             self.x_i[i]=p[0]; self.y_i[i]=p[1]; self.z_i[i]=p[2]
 
     def enr_points_finaux(self, points):
+        """ À utiliser après le filtrage des points!"""
         n=len(points)
         self.x_f,self.y_f,self.z_f=np.zeros(n),np.zeros(n),np.zeros(n)
         for i in range(n):
@@ -51,5 +52,5 @@ class Surface:
     def get_good_points(self, CRITERE):
         self.good_points.clear()
         for p in self.points:
-            if p.indexmin and (p.valmin < CRITERE):
+            if (p.valmin < CRITERE):
                 self.good_points.append(p)

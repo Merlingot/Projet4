@@ -27,7 +27,7 @@ def search(surface, d, h, L, cam1, cam2, ecran):
     """
     N=int(np.floor(L/h)) # nombre d'itérations (de descentes) pour un seul point
     for p in surface.grid: # Loop sur les points
-        cam1.U.clear(); cam2.U.clear()
+        # cam1.U.clear(); cam2.U.clear()
         point = Point(N)
         n=0; index_min=None;
         p_initial = np.array([ p[0], p[1], p[2] ])
@@ -49,9 +49,9 @@ def search(surface, d, h, L, cam1, cam2, ecran):
         point.vecP=point.vecP[point.vecB]
         point.vecN1 = point.vecN1[point.vecB];
         point.vecN2 = point.vecN2[point.vecB];
-        # Enregistrer le point étudié
-        surface.ajouter_point(point)
-
+        # Enregistrer le point étudié seulement si au moins un bon point:
+        if point.indexmin:
+            surface.ajouter_point(point)
 
 
 def evaluatePoint(p, cam1, cam2, ecran):

@@ -16,7 +16,7 @@ class Camera:
         -w      : Vecteur de la taille du CCD de la camera en [pix]                      | np.array()
         -SGMF   : String du nom du PNG de cartographie de pixel entre camera et ecran | str()
     """
-    def __init__(self, ecran, K, R, T, W, w, sgmf, mask):
+    def __init__(self, ecran, K, R, T, W, w, sgmf):
 
         # Setup
         self.ecran = ecran
@@ -66,7 +66,7 @@ class Camera:
         sgmfXY = cv2.imread(sgmf).astype('float64')
 
         #Importing confidence mask
-        self.mask = cv2.imread(mask).astype('int')
+        # self.mask = cv2.imread(mask).astype('int')
 
         #Green channel
         self.sgmf = np.zeros( (sgmfXY.shape[0], sgmfXY.shape[1], sgmfXY.shape[2]-1) )

@@ -28,8 +28,9 @@ def takahashi(PATH, NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, cam):
     CHECKERBOARD = (NB_CORNER_HEIGHT, NB_CORNER_WIDTH)
     # termination criteria
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+    # Images to analyse
     fnames = glob.glob(PATH)
-    # prepare object points (corner coordinates)
+    # Prepare object points (corner coordinates)
     objp = np.zeros((NB_CORNER_WIDTH*NB_CORNER_HEIGHT,3), np.float32)
     # objp[:,:2] = np.mgrid[0:NB_CORNER_HEIGHT,0:NB_CORNER_WIDTH].T.reshape(-1,2)
     k=0
@@ -43,14 +44,14 @@ def takahashi(PATH, NB_CORNER_WIDTH, NB_CORNER_HEIGHT, squareSize, cam):
     if len(fnames) > 0:
         # Intrinsic parameters
         mtx, dist = intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, CHECKERBOARD, criteria, objp, fnames)
-        # Write parameter to file
+        # Write intrinsic parameter to file
         r=open("./data_{}/camera.txt".format(cam),"w+")
         for row in mtx :
             r.write("{} {} {}\n".format(row[0], row[1], row[2]))
         r.close()
 
         # Undistort and takahashi for each image
-        index = [0, NB_CORNER_HEIGHT, -1]
+        index = [0, NB_CORNER_HEIGHT, -1] # Reference points
         j=1
         errs =[]; good_images=[];
         for fname in fnames:
