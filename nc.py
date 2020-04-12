@@ -27,32 +27,40 @@ def search(surface, d, h, L, cam1, cam2, ecran):
     """
     N=int(np.floor(L/h)) # nombre d'itérations (de descentes) pour un seul point
     for p in surface.grid: # Loop sur les points
-        # cam1.U.clear(); cam2.U.clear()
         point = Point(N)
-        n=0; index_min=None;
+        n=0; index_min=None; n_min=None
         p_initial = np.array([ p[0], p[1], p[2] ])
         p_min = np.array([ p[0], p[1], p[2] ]); val_min = 1e10 #(infini)
         while n<N: # Loop sur la descente du point
-            val, n1, n2, b = evaluatePoint(p, cam1, cam2, ecran)
-            point.vecV[n]=val; point.vecP[n]=p; point.vecB[n]=b; point.vecN1[n]=n1; point.vecN2[n]=n2
+            b, val, n1, u1, e1, n2, u2, e2 = evaluatePoint(p, cam1, cam2, ecran)
             if b:
                 if val < val_min:
                     index_min = n
                     val_min = val
                     p_min = np.array([p[0],p[1],p[2]])
+                    n_min=(n1+n2)/2
+            point.vecV[n]=val; point.vecP[n]=p; point.vecB[n]=b; point.vecN1[n]=n1; point.vecN2[n]=n2
+            point.vecU1[n]=u1; point.vecE1[n]=e1;
+            point.vecU2[n]=u2; point.vecE2[n]=e2;
             p += h*d
             n+=1
+
         # Enregistrer les valeurs minimales du point
         point.pmin=p_min; point.valmin=val_min; point.indexmin=index_min
+        point.nmin=n_min
         # Arranger les vecteur pour enlever les NaN:
         point.vecV=point.vecV[point.vecB]
         point.vecP=point.vecP[point.vecB]
         point.vecN1 = point.vecN1[point.vecB];
+        point.vecU1 = point.vecU1[point.vecB];
+        point.vecE1 = point.vecE1[point.vecB];
         point.vecN2 = point.vecN2[point.vecB];
+        point.vecU2 = point.vecU2[point.vecB];
+        point.vecE2 = point.vecE2[point.vecB];
         # Enregistrer le point étudié seulement si au moins un bon point:
         if point.indexmin:
             surface.ajouter_point(point)
-
+            # show_sgmf(cam1, cam2, point)
 
 def evaluatePoint(p, cam1, cam2, ecran):
     """
@@ -65,12 +73,12 @@ def evaluatePoint(p, cam1, cam2, ecran):
     """
     P = homogene(p)
 
-    n1 = normal_at(P, cam1, ecran); n2 = normal_at(P, cam2, ecran)
+    n1, u1, e1 = normal_at(P, cam1, ecran); n2, u2, e2 = normal_at(P, cam2, ecran)
 
     if isinstance(n1, np.ndarray) and isinstance(n2, np.ndarray) :
-        return m1(n1, n2), cartesienne(n1), cartesienne(n2), True
+        return True, m1(n1, n2), cartesienne(n1), u1, e1, cartesienne(n2), u2, e2
     else:
-        return None, None, None, False
+        return False, None, None, None, None, None, None, None
 
 def normal_at(P, cam, ecran):
     """
@@ -97,9 +105,9 @@ def normal_at(P, cam, ecran):
         vecPix = cam.pixCamToEcran(u) #[v1,v2,1]
         # Transformer de pixel au référentiel de l'écran
         E = ecran.pixelToSpace(vecPix) #[x,y,0,1] # pixelToSpace est une fonction qui passe de pixel de l'écran à x,y sur l'écran
-        return normale(P, E, cam.S)
+        return normale(P, E, cam.S), u, vecPix
     else:
-        return None
+        return None, None, None
 
 def homogene(vec):
     """ np.array([x,y,z]) -> np.array([x,y,z,1])   """

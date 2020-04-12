@@ -43,7 +43,8 @@ def ecran_refEcran(ecran, rgb_ecran, L, S=50):
             x = [coin1[0], coin2[0], coin3[0], coin4[0] ],
             y = [coin1[1], coin2[1], coin3[1], coin4[1] ],
             z = [coin1[2], coin2[2], coin3[2], coin4[2] ],
-            color='rgb({},{},{})'.format(rgb_ecran[0],rgb_ecran[1],rgb_ecran[2])
+            color='rgb({},{},{})'.format(rgb_ecran[0],rgb_ecran[1],rgb_ecran[2]),
+            opacity=0.1
             )
     data =[ecran]
     data += fleche(oEcran, dirEcran, rgb=rgb_ecran, s=1/S, l=L, name='Ecran')
@@ -57,15 +58,13 @@ def grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S=50):
     dirRecherche = d
 
     # Grille initiale
-    data_grille_init = go.Scatter3d(
-        x = surf.x_i,
-        y = surf.y_i,
-        z = surf.z_i,
-        mode = 'markers',
-        marker = dict(size=9)
-        # color='rgb({},{},{})'.format(rgb_grille_i[0],rgb_grille_i[1],rgb_grille_i[2]),
-        # opacity = 0.1
-        )
+    # data_grille_init = go.Scatter3d(
+    #     x = surf.x_i,
+    #     y = surf.y_i,
+    #     z = surf.z_i,
+    #     mode = 'markers',
+    #     marker = dict(size=9)
+    #     )
     # Grille finale
     data_grille_finale= go.Scatter3d(
         x = surf.x_f,
@@ -73,13 +72,15 @@ def grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S=50):
         z = surf.z_f,
         mode = 'markers',
         marker = dict(size=1)
-        # color='rgb({},{},{})'.format(rgb_grille_f[0],rgb_grille_f[1],rgb_grille_f[2]),
-        # opacity=0.2
         )
     # data = [data_grille_init, data_grille_finale]
     data =  [data_grille_finale]
     ## recherche
-    data += fleche(oRecherche, dirRecherche, rgb=rgb_grille_i, s=1/S, l=L, name='Direction recherche')
+    # data += fleche(oRecherche, dirRecherche, rgb=rgb_grille_i, s=1/S, l=L, name='Direction recherche')
+
+    # for point in surf.good_points:
+        # data += fleche(point.pmin, point.nmin, rgb=rgb_grille_i, s=1/500, l=1e-2)
+
     return data
 
 def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
@@ -116,7 +117,7 @@ def montage_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
 
 
-def grilles_refEcran(surf, ecran, cam1, cam2, L, t, d):
+def surface_refEcran(surf, ecran, cam1, cam2, L, t, d):
 
     S=50
     # Points de départ des flèches
@@ -150,7 +151,7 @@ def grilles_refEcran(surf, ecran, cam1, cam2, L, t, d):
     fig.show()
 
 
-def allo_refEcran(surf, ecran, cam1, cam2, L, t, d):
+def allo_refEcran(pp, ecran, cam1, cam2, L, t, d):
 
     S=50
     # codes rgb
@@ -163,12 +164,11 @@ def allo_refEcran(surf, ecran, cam1, cam2, L, t, d):
     data=[]
     data += ecran_refEcran(ecran, rgb_ecran, L, S)
 
-    a = [p for p in surf.points if np.linalg.norm(p.pmin-p.p_initial)!=0]
-    pp = np.random.choice(a)
-    data += point_refEcran(surf, pp,  ecran, cam1, L, S)
-    data += point_refEcran(surf, pp, ecran, cam2, L, S)
-    data += fleche(pp.pmin, pp.n1, rgb=rgb_cam1, name='n1', s=1/S, l=L)
-    data += fleche(pp.pmin, pp.n2, rgb=rgb_cam2, name='n2',  s=1/S, l=L)
+    for i in range(len(pp.vecP)):
+        data += point_refEcran(pp.vecP[i],  ecran, cam1, L, S, rgb_cam1)
+        data += point_refEcran(pp.vecP[i], ecran, cam2, L, S, rgb_cam2)
+        data += fleche(pp.vecP[i], pp.vecN1[i], rgb=rgb_cam1, name='n1', s=1/S, l=L)
+        data += fleche(pp.vecP[i], pp.vecN2[i], rgb=rgb_cam2, name='n2',  s=1/S, l=L)
 
     data += cam_refEcran(cam1, rgb_cam1, L, 'cam1 PG', S)
     data += cam_refEcran(cam2, rgb_cam2, L, 'cam2 AV', S)
@@ -190,26 +190,29 @@ def allo_refEcran(surf, ecran, cam1, cam2, L, t, d):
     fig.show()
 
 
-def point_refEcran(surf, pp, ecran, cam, L, S):
+def point_refEcran(p, ecran, cam, L, S, rgb_cam):
 
-    P = np.array([pp.pmin[0], pp.pmin[1], pp.pmin[2], 1])
+    P = np.array([p[0], p[1], p[2], 1])
     c = cam.camToCCD( cam.ecranToCam(P) )
     u = cam.spaceToPixel(c)
     vecPix = cam.pixCamToEcran(u)
     E = ecran.pixelToSpace(vecPix)
-    UC = cam.camToEcran(c[:3])
+    UC = cam.camToEcran(c)
 
     cacE = go.Scatter3d(
         x = [P[0], E[0] ],
         y = [P[1], E[1]],
         z = [P[2], E[2]],
-        mode = 'lines'
+        mode = 'lines',
+        marker=dict(color='rgb({},{},{})'.format(rgb_cam[0],rgb_cam[1],rgb_cam[2]) )
+
         )
     cacU = go.Scatter3d(
         x = [P[0], UC[0] ],
         y = [P[1], UC[1]],
         z = [P[2], UC[2]],
-        mode = 'lines'
+        mode = 'lines',
+        marker=dict(color='rgb({},{},{})'.format(rgb_cam[0],rgb_cam[1],rgb_cam[2]) )
         )
     data = [cacE, cacU]
 
@@ -355,21 +358,27 @@ def set_aspect_3D(cam, ax):
     ## Set aspect -----------------------------------------
 
 
-def show_sgmf(cam1, cam2, N,V, h):
+def show_sgmf(cam1, cam2, point,lim):
     # Visualisation of SGMF points
-    if cam1.U != [] and cam2.U != []:
-        f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    f, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4)
 
-        ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys", origin='lower')
+    ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys")
+    for pt in point.vecU1:
+        ax1.scatter( pt[0], pt[1], color='r')
 
-        for pt in cam1.U:
-            ax1.scatter( pt[0], pt[1], color='r')
+    ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys")
+    for pt in point.vecU2:
+        ax2.scatter( pt[0], pt[1], color='g')
 
-        ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys", origin='lower')
 
-        for pt in cam2.U:
-            ax2.scatter( pt[0], pt[1], color='r')
+    ax3.plot(point.vecP[:,2], point.vecV, color='b')
+    ax3.set_ylim(top=lim)  
 
-        ax3.plot(np.arange(0,N)*h, V, color='b')
+    ax4.axhline(0); ax4.axhline(900)
+    ax4.axvline(0); ax4.axvline(1600)
+    for pt in point.vecE1:
+        ax4.scatter( pt[0], pt[1], color='g')
+    for pt in point.vecE2:
+        ax4.scatter( pt[0], pt[1], color='r')
 
-        plt.show()
+    plt.show()

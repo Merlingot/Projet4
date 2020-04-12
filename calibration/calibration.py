@@ -109,6 +109,7 @@ def intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, CHECKERBOARD, criteria, objp, f
             imgpoints.append(corners2)
             # Draw and display the corners ----------------------------
             cv.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
+            # cv.imwrite('corner.png', img)
             cv.imshow('img', img)
             cv.waitKey(0)
     cv.destroyAllWindows()
@@ -128,6 +129,7 @@ def intrinsic(NB_CORNER_WIDTH, NB_CORNER_HEIGHT, CHECKERBOARD, criteria, objp, f
             # project 3D points to image plane
             imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
             img = draw(img,corners2,imgpts)
+            # cv.imwrite('axis.png', img)
             cv.imshow('img',img)
             cv.waitKey(0)
     cv.destroyAllWindows()

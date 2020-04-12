@@ -16,12 +16,24 @@ class Camera:
         -w      : Vecteur de la taille du CCD de la camera en [pix]                      | np.array()
         -SGMF   : String du nom du PNG de cartographie de pixel entre camera et ecran | str()
     """
-    def __init__(self, ecran, K, R, T, W, w, sgmf):
+    def __init__(self, ecran, K, R, T, W, sgmf):
 
         # Setup
         self.ecran = ecran
 
-        self.U = []
+        ## SGMF
+        #Importing cartography
+        sgmfXY = cv2.imread(sgmf).astype('float64') #SHAPE (Y,X,RGB)
+
+        #Importing confidence mask
+        # self.mask = cv2.imread(mask).astype('int')
+
+        #Green channel
+        self.sgmf = np.zeros( (sgmfXY.shape[0], sgmfXY.shape[1], sgmfXY.shape[2]-1) )
+        self.sgmf[:,:,0] = sgmfXY[:,:,1] * self.ecran.w[0] / 255.
+        self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
+
+        # self.U = []
 
         # Intrinsèque
         self.K = K                              # Tout information
@@ -31,10 +43,11 @@ class Camera:
         self.c = np.array([self.cu, self.cv])   # Centre optique du CCD [c]=pix
         self.s = K[0,1]                         # Skew
         self.W = W                              # Taille du CCD en [W]=m
-        self.w = w                              # Taille du CCD en [w]=pixels
+        self.w = np.array([sgmfXY.shape[1],sgmfXY.shape[0]])                             # Taille du CCD en [w]=pixels
 
-        self.sx = W[0]/w[0]                     # Taille d'un pixel [m/pixel]
-        self.sy = W[1]/w[1]                     # Taille d'un pixel [m/pixel]
+        # BINNING ???????
+        self.sx = self.W[0]/self.w[0]                     # Taille d'un pixel [m/pixel]
+        self.sy = self.W[1]/self.w[1]                     # Taille d'un pixel [m/pixel]
 
         self.F = ( self.fx*self.sx + self.fy*self.sy ) / 2. #Focale utile [m]
 
@@ -60,18 +73,6 @@ class Camera:
         self.S = self.camToEcran( np.array( [0,0,0,1]) )
         # Normale de la caméra dans le référentiel de l'écran
         self.normale = self.camToEcran( np.array([0,0,1,0]))
-
-        ## SGMF
-        #Importing cartography
-        sgmfXY = cv2.imread(sgmf).astype('float64')
-
-        #Importing confidence mask
-        # self.mask = cv2.imread(mask).astype('int')
-
-        #Green channel
-        self.sgmf = np.zeros( (sgmfXY.shape[0], sgmfXY.shape[1], sgmfXY.shape[2]-1) )
-        self.sgmf[:,:,0] = sgmfXY[:,:,1] * self.ecran.w[0] / 255.
-        self.sgmf[:,:,1] = sgmfXY[:,:,2] * self.ecran.w[1] / 255.
 
 
     def ecranToCam(self, P):
@@ -111,11 +112,11 @@ class Camera:
         """
         vecPix = (-1/self.F)*self.Khom@vecSpace
         u, v = vecPix[0], vecPix[1]
-
-        if u > 1 and v > 1 and u < self.sgmf.shape[0]-1 and v < self.sgmf.shape[1]-1:
-            # if (self.mask[int(u),int(v),2] > 100):
-               # self.U.append(np.array([u,v]))
-            return np.array([u,v,1])
+        if u >= 1 and v >= 1 and u < self.sgmf.shape[1] and v < self.sgmf.shape[0]:
+            if (self.mask[int(v),int(u)] == True):
+                return np.array([u,v,1])
+            else:
+                return None
         else:
             return None
 
@@ -155,8 +156,10 @@ class Camera:
         uE = [int(np.floor(vecPix[0])), int(np.floor(vecPix[1]))] #entier
         uR = np.mod(vecPix,1) #reste
 
-        up = self.sgmf[uE[0],uE[1],0] + uR[0]*( self.sgmf[uE[0]+1, uE[1]+1, 0] - self.sgmf[uE[0],uE[1],0] )
-        vp = self.sgmf[uE[0],uE[1],1] + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+        up = self.sgmf[uE[1],uE[0],0] #[j,i,x]
+        # + uR[1]*( self.sgmf[uE[1]+1, uE[0]+1, 0] - self.sgmf[uE[1],uE[0],0] )
+        vp = self.sgmf[uE[1],uE[0],1] #[j,i,y]
+        # + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
 
         return np.array([up, vp, 1])
 

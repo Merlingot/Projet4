@@ -13,7 +13,10 @@ class Point:
         self.vecB=np.zeros(N, dtype=bool)
         self.vecN1=np.zeros((N,3))
         self.vecN2=np.zeros((N,3))
-
+        self.vecU1=np.zeros((N,3))
+        self.vecE1=np.zeros((N,3))
+        self.vecE2=np.zeros((N,3))
+        self.vecU2=np.zeros((N,3))
 
 class Surface:
 
@@ -45,9 +48,11 @@ class Surface:
         """ À utiliser après le filtrage des points!"""
         n=len(points)
         self.x_f,self.y_f,self.z_f=np.zeros(n),np.zeros(n),np.zeros(n)
+        self.u, self.v, self.w=np.zeros(n),np.zeros(n),np.zeros(n)
         for i in range(n):
             p=points[i]
-            self.x_f[i]=p.pfinal[0]; self.y_f[i]=p.pfinal[1]; self.z_f[i]=p.pfinal[2]
+            self.x_f[i]=p.pmin[0]; self.y_f[i]=p.pmin[1]; self.z_f[i]=p.pmin[2]
+            self.u[i]=p.nmin[0];self.v[i]=p.nmin[1];self.w[i]=p.nmin[2];
 
     def get_good_points(self, CRITERE):
         self.good_points.clear()
