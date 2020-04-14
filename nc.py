@@ -121,7 +121,7 @@ def cartesienne(vec):
     if vec.size == 4:
         return np.array([vec[0], vec[1], vec[2]])
     else:
-        return vec_hom
+        return vec
 
 def normale(P,E,C):
     """
@@ -129,13 +129,13 @@ def normale(P,E,C):
     Calculer une normale avec 3 points dans le même référentiel
     P:point E:écran C:caméra np.array([x,y,z,1])
     """
-    PE = E-P; PC = C-P
-    pe = PE/np.linalg.norm(PE); pc = PC/np.linalg.norm(PC)
-    N = pe + pc
-    n = N/np.linalg.norm(N)
+    r = P-E; p = P-C # r = vec(EP), p = vec(CP)
+    r = r/np.linalg.norm(r); p = p/np.linalg.norm(p)
+    n = - r - p
+    n = n/np.linalg.norm(n)
     return n
 
-def m1(n1, n2):
+def m2(n1, n2):
     """
     *homogene
     Inconsistensy of the current point p.
@@ -145,14 +145,15 @@ def m1(n1, n2):
     """
     return 1 - np.abs(n1@n2)
 
-def m2(n1, n2):
+def m1(n1, n2):
     """
     *homogene
     Inconsistensy of the current point p.
     Definition : m=n1<cross_product>n2
     Args:
         n1, n2 : np.array([x,y,z,0])"""
-    return norm(np.cross(n1, n2))
+
+    return norm(np.cross(n1[:3], n2[:3]))
 
 
 # Autre fonctions ------------------

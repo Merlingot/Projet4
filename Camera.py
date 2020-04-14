@@ -24,6 +24,7 @@ class Camera:
         ## SGMF
         #Importing cartography
         sgmfXY = cv2.imread(sgmf).astype('float64') #SHAPE (Y,X,RGB)
+        # sgmfXY = cv2.bilateralFilter(sgmfXY, 7, sigmaSpace = 75, sigmaColor =75)
 
         #Importing confidence mask
         # self.mask = cv2.imread(mask).astype('int')
@@ -156,10 +157,10 @@ class Camera:
         uE = [int(np.floor(vecPix[0])), int(np.floor(vecPix[1]))] #entier
         uR = np.mod(vecPix,1) #reste
 
-        up = self.sgmf[uE[1],uE[0],0] #[j,i,x]
+        up = self.sgmf[uE[1],uE[0],0]
         # + uR[1]*( self.sgmf[uE[1]+1, uE[0]+1, 0] - self.sgmf[uE[1],uE[0],0] )
-        vp = self.sgmf[uE[1],uE[0],1] #[j,i,y]
-        # + uR[1]*( self.sgmf[uE[0]+1, uE[1]+1, 1] - self.sgmf[uE[0],uE[1],1] )
+        vp = self.sgmf[uE[1],uE[0],1]
+        # + uR[0]*( self.sgmf[uE[1]+1, uE[0]+1, 1] - self.sgmf[uE[1],uE[0],1] )
 
         return np.array([up, vp, 1])
 

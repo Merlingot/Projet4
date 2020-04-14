@@ -34,8 +34,8 @@ def confidenceMap(sgmf, name):
     # Blur the image
     maskimg = cv2.medianBlur(edgeImgG, 7)*cv2.medianBlur(edgeImgR, 7)
 
-    maskimg = maskimg * 255
+    maskimg = 255 - maskimg * 255
     cv2.imwrite(name, maskimg)
 
 
-confidenceMap('./data/lentille_anto/cam_match_AV.png', './data/lentille_anto/allo.png')
+confidenceMap('./data/lentille_filtre_anto/cam_match_lentille_ptgrey_gauss.png', './data/lentille_filtre_anto/conf_gayss.png')

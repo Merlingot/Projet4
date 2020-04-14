@@ -58,13 +58,14 @@ def grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S=50):
     dirRecherche = d
 
     # Grille initiale
-    # data_grille_init = go.Scatter3d(
-    #     x = surf.x_i,
-    #     y = surf.y_i,
-    #     z = surf.z_i,
-    #     mode = 'markers',
-    #     marker = dict(size=9)
-    #     )
+    data_grille_init = go.Mesh3d(
+        x = surf.x_i,
+        y = surf.y_i,
+        z = surf.z_i,
+        # mode = 'markers',
+        # marker = dict(size=9)
+        opacity=0.1
+        )
     # Grille finale
     data_grille_finale= go.Scatter3d(
         x = surf.x_f,
@@ -73,13 +74,14 @@ def grilles_refEcran(surf, rgb_grille_i, rgb_grille_f, t, d, L, S=50):
         mode = 'markers',
         marker = dict(size=1)
         )
-    # data = [data_grille_init, data_grille_finale]
-    data =  [data_grille_finale]
+    data = [data_grille_init, data_grille_finale]
+    # data =  [data_grille_finale]
     ## recherche
     # data += fleche(oRecherche, dirRecherche, rgb=rgb_grille_i, s=1/S, l=L, name='Direction recherche')
 
+    # VECTEUR NORMAUX
     # for point in surf.good_points:
-        # data += fleche(point.pmin, point.nmin, rgb=rgb_grille_i, s=1/500, l=1e-2)
+    #     data += fleche(point.pmin, point.nmin, rgb=rgb_grille_i, s=1/500, l=1e-2)
 
     return data
 
@@ -372,7 +374,7 @@ def show_sgmf(cam1, cam2, point,lim):
 
 
     ax3.plot(point.vecP[:,2], point.vecV, color='b')
-    ax3.set_ylim(top=lim)  
+    ax3.set_ylim(top=lim)
 
     ax4.axhline(0); ax4.axhline(900)
     ax4.axvline(0); ax4.axvline(1600)
