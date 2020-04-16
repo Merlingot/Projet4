@@ -147,8 +147,8 @@ def surface_refEcran(surf, ecran, cam1, cam2, L, t, d):
     eye=dict(x=1.25, y=1.25, z=-1.25)
     )))
 
-    set_aspect_3D_plotly(cam1, fig)
-    fig.update_layout(showlegend=True)
+    # set_aspect_3D_plotly(cam1, fig)
+    # fig.update_layout(showlegend=True)
     # fig.write_image("fig_{}.eps".format(stra))
     fig.show()
 
@@ -186,7 +186,7 @@ def allo_refEcran(pp, ecran, cam1, cam2, L, t, d):
     eye=dict(x=1.25, y=1.25, z=-1.25)
     )))
 
-    set_aspect_3D_plotly(cam1, fig)
+    # set_aspect_3D_plotly(cam1, fig)
     fig.update_layout(showlegend=True)
     # fig.write_image("fig_{}.eps".format(stra))
     fig.show()
@@ -364,18 +364,18 @@ def show_sgmf(cam1, cam2, point,lim):
     # Visualisation of SGMF points
     f, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4)
 
-    ax1.imshow(cam1.sgmf[:,:,0], cmap="Greys")
+    ax1.imshow(np.transpose(cam1.sgmf[:,:,0]), cmap="Greys")
     for pt in point.vecU1:
         ax1.scatter( pt[0], pt[1], color='r')
 
-    ax2.imshow(cam2.sgmf[:,:,0], cmap="Greys")
+    ax2.imshow(np.transpose(cam2.sgmf[:,:,0]), cmap="Greys")
     for pt in point.vecU2:
         ax2.scatter( pt[0], pt[1], color='g')
-
 
     ax3.plot(point.vecP[:,2], point.vecV, color='b')
     ax3.set_ylim(top=lim)
 
+    ax4.set_aspect('equal', 'box')
     ax4.axhline(0); ax4.axhline(900)
     ax4.axvline(0); ax4.axvline(1600)
     for pt in point.vecE1:

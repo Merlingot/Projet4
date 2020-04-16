@@ -38,4 +38,4 @@ def confidenceMap(sgmf, name):
     cv2.imwrite(name, maskimg)
 
 
-confidenceMap('./data/lentille_filtre_anto/cam_match_lentille_ptgrey_gauss.png', './data/lentille_filtre_anto/conf_gayss.png')
+confidenceMap('./data/lentille_plano_convexe/cam_match_PG.png', './data/lentille_plano_convexe/conf_PG.png')

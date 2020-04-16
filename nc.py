@@ -27,6 +27,7 @@ def search(surface, d, h, L, cam1, cam2, ecran):
     """
     N=int(np.floor(L/h)) # nombre d'itérations (de descentes) pour un seul point
     for p in surface.grid: # Loop sur les points
+        # print('------------------ POINT ----------------')
         point = Point(N)
         n=0; index_min=None; n_min=None
         p_initial = np.array([ p[0], p[1], p[2] ])
