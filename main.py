@@ -10,8 +10,6 @@ from Ecran import Ecran
 from nc import *
 from util import surface_refEcran, montage_refEcran, allo_refEcran,  show_sgmf
 
-
-
 # choisir l'échantillon à caractériser parmi la panoplie collector best of 2018-2020 "ah les années poly, c'était beau" :
 #lentille_anto, miroir_plan_anto, lentille_biconvexe, lentille_plano_convexe, miroir_plan
 echantillon = "lentille_biconvexe"
@@ -38,6 +36,8 @@ W = w * 0.277e-3 #m
 ecran = Ecran( W, w ,c )
 # Camera Point Grey -------------------------------------
 sgmf1 = "./data/" + echantillon + "/cam_match_PG.png"
+
+
 R1 = np.array(pg.R)
 T1 = np.array(pg.T)
 w1 = np.array( [3376, 2704] )
