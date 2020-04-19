@@ -43,7 +43,7 @@ T1 = np.array(pg.T)
 w1 = np.array( [3376, 2704] )
 W1 = w * 1.69e-6
 cam1 = Camera(ecran, K1, R1, T1, W1, sgmf1)
-cam1.mask = np.transpose(cv2.imread("./data/" + echantillon + "/conf_PG.png", 0).astype('bool'))
+cam1.mask = np.transpose(cv2.imread("./data/" + echantillon + "/quadrupleconf_PG.png", 0).astype('bool')) #quadrupleconf est meilleure que conf pour PG mais pas pour AV
 # Allied vision -------------------------------------
 sgmf2 = "./data/" + echantillon + "/cam_match_AV.png"
 R2 = np.array(av.R)
@@ -66,163 +66,141 @@ cam2.mask = np.transpose(cv2.imread("./data/" + echantillon + '/conf_AV.png', 0)
 
 ## Comparaison avant et apres filtrage gaussien sur une tranche de sgmf
 
-sgmf = cv2.imread("./data/" + 'lentille_filtre_anto' + '/cam_match_lentille_ptgrey.png')
-sgmf_gauss = cv2.imread("./data/" + 'lentille_filtre_anto' + '/cam_match_lentille_ptgrey_gauss.png')
+sgmf = cv2.imread(sgmf1).astype('float64')
 
-tranche_y = 1500
-plage_y = np.arange(1000,3000)
-tranche_x = 2500
-plage_x_tot = np.arange(0,2*cam1.w[1]-1)
-plage_x = plage_x_tot
-
-# fig, ax = plt.subplots()
-# plt.plot(plage_y,sgmf[tranche_y,plage_y,1])
-# plt.plot(plage_y,sgmf_gauss[tranche_y,plage_y,1])
-# plt.legend(['SGMF brute','SGMF filtrée'])
-# plt.title('Tranche horizontale de SGMF',color = 'g')
-# ax.xaxis.tick_top()
-# plt.show()
-
+tranche_x = 708
+plage_x = np.arange(1,int(w1[1]/2)-2)
 
 fig, ax = plt.subplots()
-plt.plot(plage_x,900/255*sgmf[plage_x,tranche_x,1])
-plt.plot(plage_x,900/255*sgmf_gauss[plage_x,tranche_x,1])
-plt.legend(['SGMF brute','SGMF filtrée'])
-# plt.title('Tranche verticale de SGMF', color='r')
-ax.set_xlabel('v')
-ax.set_ylabel('pixel v'"'" ' de l'"'"'écran')
-# plt.savefig('SGMF_tranche_1D.eps', format='eps')
+plt.plot(plage_x,sgmf[plage_x,tranche_x,2],'o',markersize=3)
+plt.legend(['SGMF brute','Filtrage Median'])
+
+
 plt.show()
 
 
 fig, ax = plt.subplots()
-im = plt.imshow(sgmf[:,:,1])
+im = plt.imshow(sgmf[:,:,2])
 ax.xaxis.tick_top()
 ax.set_xlabel('u')
 ax.xaxis.set_label_position('top')
 ax.set_ylabel('v')
-cbar = plt.colorbar(im, ticks=np.arange(0,900,150)*255/900
-)
-cbar.set_label('pixel v'"'" ' de l'"'"'écran', color='k')
-cbar.ax.set_yticklabels(['0', '150', '300','450','600','750','900'])
+cbar = plt.colorbar(im)
 plt.axvline(tranche_x,color='r')
-# plt.axhline(tranche_y,color='g')
-# plt.title('sgmfXY[:,:,1] (cv2.imread(sgmf)) -- CHANNEL Y ')
-
-# plt.savefig('SGMF_tranche.eps', format='eps')
 plt.show()
 
 
 
 
-#################################################################
-# # Notre miroir :
-# y1=-0.0195; y2=-0.05
-y1=0.1; y2=-0.1
-# x1=0.05; x2=-0.04
-x1=0.1; x2=-0.1
-
-#direction de recherche normale a lecran
-d = np.array([0,0,1]) #- anthony
-t = np.array([(x1+x2)/2, (y1+y2)/2, 15e-2]) #- anthony
-# t = np.array([0.0,0.0, -10e-2])
-#direction de recherche normale a une camera
-# d = cam1.camToEcran(np.array([0,0,1,0]))[:3]
-# t = cam1.camToEcran(np.array([0,0,0,1]))[:3] + d*10e-2
-
-h=0.1e-2
-l=20e-2
-
-grid = []
-o = t
-dk=0.005
-Lx=(x1-x2)/2;
-Ly=(y1-y2)/2;
-kx=int(np.floor(Lx/dk)); ky=int(np.floor(Ly/dk))
-
-
-searchVolumeBasis = graham( d, [1,0,0], [0,1,0] )
-v1 = searchVolumeBasis[0]; v2 = searchVolumeBasis[1]; v3 = searchVolumeBasis[2]
-for j in np.arange(-kx, kx):
-    for i in np.arange(-ky, ky):
-        a = o + i*dk*v3 + j*dk*v2
-        grid.append(a)
-surf=Surface(grid)
-search(surf, d, h, l, cam1, cam2, ecran)
-
-# TRAITEMENT DES DONNÉES ------------------------------------------------
-surf.get_good_points(1)
-surf.enr_points_finaux(surf.good_points)
-g = surf.good_points
-
-
-#Montrer tout le montage
-L=10e-2 #longueur des flêches
-montage_refEcran(surf, ecran, cam1, cam2, L, t, d)
-surface_refEcran(surf, ecran, cam1, cam2, L, t, d)
-# allo_refEcran(g[10], ecran, cam1, cam2, L, t, d)
-
-
-# xs,ys,zs = [],[],[]
-# for p in g[:]:
-#     x=p.vecP[:,0];y=p.vecP[:,1];z=p.vecP[:,2]; noisy_data=p.vecV
-#     x=x[noisy_data<0.1];y=y[noisy_data<0.1];z=z[noisy_data<0.1];
-#     noisy_data=noisy_data[noisy_data<0.1]
-#     if len(noisy_data) > 4:
-#         signal = sci.savgol_filter(noisy_data, int(len(noisy_data)/2)*2 - 1 , 2)
-#         index = sci.argrelextrema( signal, np.less )[0]
-#         if len(index) > 0 :
-#             argmin = index[np.argmin( signal[index] )]
-#             pmin = z[argmin]; valmin=signal[argmin]
-#             xs.append(x[argmin]); ys.append(y[argmin]); zs.append(z[argmin])
-#             # plt.figure()
-#             # plt.ylabel('||$n_1 x n_2$||')
-#             # plt.xlabel('Distance (m)')
-#             # plt.plot(-z, noisy_data, label="données", marker='.')
-#             # plt.plot(-z, signal, label="lissage")
-#             # plt.plot(-pmin, valmin, 'o', label='minimum')
-#             # plt.legend(loc=0)
-#             # plt.savefig('cac.png', format='png')
-#             # plt.show()
-#             # show_sgmf(cam1, cam2, p, None)
+#
+##################################################################
+## # Notre miroir :
+## y1=-0.0195; y2=-0.05
+#y1=0.1; y2=-0.1
+## x1=0.05; x2=-0.04
+#x1=0.1; x2=-0.1
+#
+##direction de recherche normale a lecran
+#d = np.array([0,0,1]) #- anthony
+#t = np.array([(x1+x2)/2, (y1+y2)/2, 15e-2]) #- anthony
+## t = np.array([0.0,0.0, -10e-2])
+##direction de recherche normale a une camera
+## d = cam1.camToEcran(np.array([0,0,1,0]))[:3]
+## t = cam1.camToEcran(np.array([0,0,0,1]))[:3] + d*10e-2
+#
+#h=0.1e-2
+#l=20e-2
+#
+#grid = []
+#o = t
+#dk=0.005
+#Lx=(x1-x2)/2;
+#Ly=(y1-y2)/2;
+#kx=int(np.floor(Lx/dk)); ky=int(np.floor(Ly/dk))
 #
 #
+#searchVolumeBasis = graham( d, [1,0,0], [0,1,0] )
+#v1 = searchVolumeBasis[0]; v2 = searchVolumeBasis[1]; v3 = searchVolumeBasis[2]
+#for j in np.arange(-kx, kx):
+#    for i in np.arange(-ky, ky):
+#        a = o + i*dk*v3 + j*dk*v2
+#        grid.append(a)
+#surf=Surface(grid)
+#search(surf, d, h, l, cam1, cam2, ecran)
+#
+## TRAITEMENT DES DONNÉES ------------------------------------------------
+#surf.get_good_points(1)
+#surf.enr_points_finaux(surf.good_points)
+#g = surf.good_points
 #
 #
-#
-# import plotly.graph_objects as go
-# import plotly.figure_factory as ff
-#
-# data  = [go.Mesh3d(
-#     x = xs,
-#     y = ys,
-#     z = zs,
-#     # mode = 'markers',
-#     # marker = dict(size=9)
-#     opacity=0.4
-#     )]
-#
-# data += [go.Mesh3d(
-#     x = surf.x_i,
-#     y = surf.y_i,
-#     z = surf.z_i,
-#     # mode = 'markers',
-#     # marker = dict(size=9)
-#     opacity=0.1
-#     )]
-#
-# fig = go.Figure(data)
-#
-# fig.update_layout(
-# scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
-# aspectmode='manual',
-# camera = dict(
-# up=dict(x=0, y=0, z=-1),
-# center=dict(x=0, y=0, z=0),
-# eye=dict(x=1.25, y=1.25, z=-1.25)
-# )))
+##Montrer tout le montage
+#L=10e-2 #longueur des flêches
+#montage_refEcran(surf, ecran, cam1, cam2, L, t, d)
+#surface_refEcran(surf, ecran, cam1, cam2, L, t, d)
+## allo_refEcran(g[10], ecran, cam1, cam2, L, t, d)
 #
 #
-# fig.update_layout(showlegend=True)
-# # fig.write_image("fig_{}.eps".format(stra))
-# fig.show()
+## xs,ys,zs = [],[],[]
+## for p in g[:]:
+##     x=p.vecP[:,0];y=p.vecP[:,1];z=p.vecP[:,2]; noisy_data=p.vecV
+##     x=x[noisy_data<0.1];y=y[noisy_data<0.1];z=z[noisy_data<0.1];
+##     noisy_data=noisy_data[noisy_data<0.1]
+##     if len(noisy_data) > 4:
+##         signal = sci.savgol_filter(noisy_data, int(len(noisy_data)/2)*2 - 1 , 2)
+##         index = sci.argrelextrema( signal, np.less )[0]
+##         if len(index) > 0 :
+##             argmin = index[np.argmin( signal[index] )]
+##             pmin = z[argmin]; valmin=signal[argmin]
+##             xs.append(x[argmin]); ys.append(y[argmin]); zs.append(z[argmin])
+##             # plt.figure()
+##             # plt.ylabel('||$n_1 x n_2$||')
+##             # plt.xlabel('Distance (m)')
+##             # plt.plot(-z, noisy_data, label="données", marker='.')
+##             # plt.plot(-z, signal, label="lissage")
+##             # plt.plot(-pmin, valmin, 'o', label='minimum')
+##             # plt.legend(loc=0)
+##             # plt.savefig('cac.png', format='png')
+##             # plt.show()
+##             # show_sgmf(cam1, cam2, p, None)
+##
+##
+##
+##
+##
+## import plotly.graph_objects as go
+## import plotly.figure_factory as ff
+##
+## data  = [go.Mesh3d(
+##     x = xs,
+##     y = ys,
+##     z = zs,
+##     # mode = 'markers',
+##     # marker = dict(size=9)
+##     opacity=0.4
+##     )]
+##
+## data += [go.Mesh3d(
+##     x = surf.x_i,
+##     y = surf.y_i,
+##     z = surf.z_i,
+##     # mode = 'markers',
+##     # marker = dict(size=9)
+##     opacity=0.1
+##     )]
+##
+## fig = go.Figure(data)
+##
+## fig.update_layout(
+## scene = dict(xaxis_title='X', yaxis_title='Y',zaxis_title='Z',     aspectratio=dict(x=1, y=1, z=1),
+## aspectmode='manual',
+## camera = dict(
+## up=dict(x=0, y=0, z=-1),
+## center=dict(x=0, y=0, z=0),
+## eye=dict(x=1.25, y=1.25, z=-1.25)
+## )))
+##
+##
+## fig.update_layout(showlegend=True)
+## # fig.write_image("fig_{}.eps".format(stra))
+## fig.show()

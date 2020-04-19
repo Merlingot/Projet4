@@ -13,6 +13,8 @@ def edgedetect (channel):
 def confidenceMap(sgmf, name):
     ## (1) read and extract the blue channel
     img = cv2.imread(sgmf)
+    # uncomment for pre-blurring
+#    img = cv2.medianBlur(img,5)
     red = img[:,:,1]
     green = img[:,:,2]
 
@@ -32,10 +34,13 @@ def confidenceMap(sgmf, name):
     edgeImgG[edgeImgG <= np.mean(edgeImgG)] = 0;
 
     # Blur the image
-    maskimg = cv2.medianBlur(edgeImgG, 7)*cv2.medianBlur(edgeImgR, 7)
+    # changer le (21,21)PG en (7,7)AV
+    maskimg = cv2.GaussianBlur(edgeImgG,(7,7),0)*cv2.GaussianBlur(edgeImgR,(7,7),0)
 
     maskimg = 255 - maskimg * 255
     cv2.imwrite(name, maskimg)
 
 
-confidenceMap('./data/lentille_plano_convexe/cam_match_PG.png', './data/lentille_plano_convexe/conf_PG.png')
+
+
+confidenceMap('./data/miroir_plan/cam_match_AV.png', './data/miroir_plan/quadrupleconf_AV.png')
